@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-06-30.
-" @Revision:    1592
+" @Last Change: 2010-08-14.
+" @Revision:    1593
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -30,7 +30,7 @@ endif
 if !exists('g:tplugin_autoload_exclude')
     " A list of repositories for which autoload is disabled when running 
     " |:TPluginScan|.
-    let g:tplugin_autoload_exclude = []   "{{{2
+    let g:tplugin_autoload_exclude = ['tplugin']   "{{{2
 endif
 
 
