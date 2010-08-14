@@ -1,0 +1,162 @@
+*tplugin.txt*       A simple plugin loader/runtimepath manager
+
+This plugin helps users to avoid loading plugins on startup but only 
+when they are actually needed. It also allows users to maintain their 
+plugins in an alternative directory layout.
+
+Usually, all plugins are installed under one root directory (see 
+|vimfiles|). This makes it potentially cumbersome to install a plugin 
+that is distributed as zip/tgz or is downloaded from a source code 
+repository. It also makes it more difficult than necessary to 
+temporarily use a plugin, e.g., for testing purposes.
+
+tplugin allows users to install plugins in an alternative directory 
+structure where each plugin (consequently referred to as "repo") is 
+installed in a subdirectory. tplugin takes care of modifying 
+'runtimepath' and of loading the vim script files as necessary.
+
+Alternative directory layout:
+
+    ROOT/
+      repo1/
+        after/
+        autoload/
+        doc/
+        plugin/
+      repo2/
+        after/
+        autoload/
+        doc/
+        plugin/
+      ...
+
+Repos can be enabled (i.e. added to 'runtimepath') either explicitly 
+with the |:TPlugin| command or automatically by calling a command, 
+function, or by requesting a filetype plugin/syntax/indent file defined 
+in a repo -- i.e. tplugin also provides an autoload facility similar to 
+the AsNeeded plugin (vimscript #915). See below for details.
+
+The main purpose of this plugin was to facilitate the use of plugins 
+that are downloaded from a VCS like git, svn etc. But it can also be 
+used to handle plugins distributed as zip or tgz archives. For vimballs, 
+you'll might have to use a non-standard vimball unpacker---like the one 
+that can be found in the vimtlib repository.
+
+You can have more than one root directory although it currently (as of 
+version 0.2) could cause problems and is deprecated. 
+
+
+Usage~
+                                                    *tplugin-autoload*
+With autoload:
+
+    By default, tplugin has autoload enabled. With autoload, you can use 
+    tplugin by (1) loading the macro in your |vimrc| file and then (2) 
+    (optional step) setting non-standard root directories. The standard 
+    root-directory is ~/vimfiles/repos (or ~/.vim/repos) and does not 
+    have to be explicitely declared.
+
+    Example: >
+        
+        runtime macros/tplugin.vim
+        " Only necessary if you use a non-standard root directory
+        TPluginRoot /home/x/src/repos
+
+<   (3) Collect the autoload information by running the |:TPluginScan| 
+    command. (4) Restart vim.
+
+    The plugins will be loaded as soon as one of its functions or 
+    commands is called for the first time.
+
+    When using autoload, for every known ROOT (see |:TPluginRoot|), the 
+    file ROOT/_tplugin.vim is loaded on startup. This file is created by 
+    the |:TPluginScan| command and should not be edited by the user.
+
+                            *tplugin-dependencies* *tplugin-metadata*
+    When enabling a repository (ROOT/REPO), e.g., by calling |:TPlugin|, 
+    the files ROOT/_tplugin_REPO.vim and ROOT/REPO/_tplugin.vim are 
+    loaded. These files allows users (or plugin developers) to, e.g., 
+    define dependencies (see |:TPluginBefore| and |:TPluginAfter|).
+
+
+Without autoload:
+
+    (1) Load the macro and (2) set non-standard root directories. In 
+    addition, (3) load plugins as desired.
+
+    Example: >
+
+        runtime macros/tplugin.vim
+        " Only necessary if you use a non-standard root directory
+        TPluginRoot /home/x/src/repos
+        " Load all plugins in repo1
+        TPlugin repo1
+        " Load only specified plugins from repo2
+        TPlugin repo2 foo bar
+
+<   It is advantageous to source the macro rather at the top of your 
+    vimrc file before making any changes to the 'runtimepath'. If you 
+    don't change the 'runtimepath', the position is of no importance.
+
+    Then install your plugins/repos in the root directory. After 
+    restarting vim, type :TPluginScan!
+
+    Full example as it could be found in a |vimrc| file: >
+
+        runtime macros/tplugin.vim
+        TPluginRoot F:\repos
+        TPlugin vim-surround
+        let g:snippets_dir = 'X:\vimfiles\snippets,F:\repos\snipmate.vim\snippets'
+        TPlugin snipmate.vim
+        TPlugin! vimtlib 02tlib
+
+
+CAVEAT: If you have a file after/plugin/foo.vim in you user vimfiles 
+directory, this file will be loaded before any "managed" plugin "foo". 
+You thus have to check in your after/plugin/foo.vim file if the plugin 
+was already loaded.
+
+Contrary to the default plugin behaviour, those managed plugins are 
+loaded when the |VimEnter| event is triggered, i.e. after all plugins 
+(incl. the after directory) and |gvimrc| was loaded. This approach 
+provides for a better control of which plugins should be loaded. You can 
+load a managed plugin immediately by adding a bang '!' to the |:TPlugin| 
+command.
+
+                                                    *tplugin-asneeded*
+AsNeeded Users~
+
+tplugin can serve as a drop-in replacement for the AsNeeded plugin. Add 
+the following command to you |vimrc| file: >
+
+    TPluginRoot ~/vimfiles/AsNeeded/*
+
+Alternatively, move the files the AsNeeded subdirectory to 
+REPOS/AsNeeded/plugin/.
+
+Run |:TPluginScan| in order to create autoload definitions for commands 
+and functions.
+
+Contrary to the AsNeeded plugin, tplugin only supports autoload for 
+|<Plug>| type of maps. Other autoload maps have to be defined by the 
+user using the |TPluginMap()| function.
+
+
+Related work~
+
+    - Marc Weber's vim-addon-manager (my main source of inspiration for 
+      this script), which also provides downloading plugins and 
+      automatic dependency management:
+      http://github.com/MarcWeber/vim-plugin-manager (vimscript #2905)
+
+    - Tim Pope's pathogen (vimscript #2332).
+
+    - Charles E. Campbell's AsNeeded (vimscript #915)
+
+
+-----------------------------------------------------------------------
+
+Status:  Works for me (there may be some minor quirks)
+Install: See http://github.com/tomtom/vimtlib/blob/master/INSTALL.TXT
+See http://github.com/tomtom for related plugins.
+
