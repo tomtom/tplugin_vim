@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-08-15.
-" @Revision:    1602
+" @Last Change: 2010-08-19.
+" @Revision:    1606
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -1266,7 +1266,14 @@ function! TPluginCommand(...) "{{{3
     if g:tplugin_autoload && exists(':'. matchstr(cmd, '\s\zs\u\w*$')) != 2
         let args = [s:GetRoot()] + a:000
         " echom "DBG cmd =" cmd
-        exec s:DefineCommand(a:000) .' call s:Autoload(1, '. string(args) .', "<bang>", ["<line1>", "<line2>"], <q-args>)'
+        if cmd =~ '\s-range[[:space:]=]'
+            let range = '["<line1>", "<line2>"]'
+        elseif cmd =~ '\s-count[[:space:]=]'
+            let range = '["<count>"]'
+        else
+            let range = '[]'
+        end
+        exec s:DefineCommand(a:000) .' call s:Autoload(1, '. string(args) .', "<bang>", '. range .', <q-args>)'
     endif
 endf
 
