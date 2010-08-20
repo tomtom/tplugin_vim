@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-08-19.
-" @Revision:    1606
+" @Last Change: 2010-08-20.
+" @Revision:    1636
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -74,8 +74,9 @@ if !exists('g:tplugin_scan')
     "    t ... filetypes
     "    h ... helptags (always regenerate helptags, see also |g:tplugin_helptags|)
     "    a ... autoload
+    "    _ ... include _tplugin.vim files
     "    all ... all of the above
-    let g:tplugin_scan = 'cfpta'   "{{{2
+    let g:tplugin_scan = 'cfpta_'   "{{{2
     "    l ... loaded_* variables
 endif
 
@@ -347,7 +348,8 @@ function! s:AutoloadFunction(fn) "{{{3
             call TPluginRequire(1, root, repo, '.')
             let [root, rootrepo, plugindir] = s:GetRootPluginDir(root, repo)
             " call s:LoadFile(rootrepo, s:FileJoin(rootrepo, 'autoload', prefix .'.vim'))
-            " echom "DBG AutoloadFunction def:" root rootrepo plugindir
+            " echom "DBG AutoloadFunction def:" string(s:before) root rootrepo plugindir
+            " echom "DBG AutoloadFunction before:" string(s:before)
             call s:RunHooks(s:before, rootrepo, rootrepo .'/autoload/')
             let autoload_file = 'autoload/'. prefix .'.vim'
             " TLogVAR autoload_file
@@ -613,7 +615,7 @@ function! s:ScanRoots(immediate, roots, args) "{{{3
         let awhat = g:tplugin_scan
     endif
     if awhat == 'all'
-        let what = ['c', 'f', 'a', 'p', 'h', 't', 'l']
+        let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', '_']
     else
         let what = split(awhat, '\zs')
     endif
@@ -642,7 +644,7 @@ function! s:ScanRoots(immediate, roots, args) "{{{3
             continue
         endif
 
-        let files0 = s:GetFiles(root, is_tree)
+        let [_tplugins, files0] = s:GetFiles(root, is_tree)
         let pos0 = len(root) + 1
         " TLogVAR pos0
         " TLogDBG strpart(files0[0], pos0)
@@ -670,6 +672,13 @@ function! s:ScanRoots(immediate, roots, args) "{{{3
             call tlib#progressbar#Init(len(filelist), 'TPluginscan: Scanning '. escape(root, '%') .' %s', 20)
         else
             echo 'TPluginscan: Scanning '. root .' ...'
+        endif
+
+        if index(what, '_') != -1
+            for _tplugin in _tplugins
+                " echom "DBG _tplugin" _tplugin
+                call extend(out, readfile(_tplugin))
+            endfor
         endif
 
         if is_tree && index(what, 't') != -1
@@ -821,6 +830,8 @@ function! s:GetFiles(root, is_tree) "{{{3
     " TLogVAR files0
 
     call filter(files0, '!empty(v:val) && v:val !~ ''[\/]\(\.git\|.svn\|CVS\)\([\/]\|$\)''')
+    let pos0 = len(a:root) + 1
+    let _tplugins = filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]_tplugin\.vim$''')
     let exclude_rx = '\V'. join(add(g:tplugin_autoload_exclude, '\[\\/]'. s:tplugin_file .'\(_\w\+\)\?\.vim\$'), '\|')
     " TLogVAR exclude_rx
     if exclude_rx != '\V'
@@ -828,7 +839,7 @@ function! s:GetFiles(root, is_tree) "{{{3
     endif
     " TLogVAR files0
     " TLogDBG len(files0)
-    return files0
+    return [_tplugins, files0]
 endf
 
 
@@ -976,10 +987,13 @@ function! s:AddRepo(rootrepos, isflat) "{{{3
             let s:done[rootrepo] = {}
             if !a:isflat
                 call insert(rtp, rootrepo, idx)
-                call insert(rtp, s:FileJoin(rootrepo, 'after'), -1)
+                let after_dir = s:FileJoin(rootrepo, 'after')
+                if isdirectory(after_dir)
+                    call insert(rtp, after_dir, -1)
+                endif
                 let &rtp = join(rtp, ',')
                 let repo_tplugin = rootrepo .'/'. s:tplugin_file .'.vim'
-                " echom "DBG ". repo_tplugin
+                " echom "DBG" repo_tplugin filereadable(repo_tplugin)
                 if filereadable(repo_tplugin)
                     exec 'source '. s:FnameEscape(repo_tplugin)
                 endif
@@ -987,9 +1001,9 @@ function! s:AddRepo(rootrepos, isflat) "{{{3
             endif
             " TLogVAR rtp
             let tplugin_repo = fnamemodify(rootrepo, ':h') .'/'. s:tplugin_file .'_'. fnamemodify(rootrepo, ':t') .'.vim'
-            " TLogVAR rootrepo, tplugin_repo
+            " echom "DBG" rootrepo tplugin_repo filereadable(tplugin_repo)
             if filereadable(tplugin_repo)
-                exec 'silent! source '. s:FnameEscape(tplugin_repo)
+                exec 'source '. s:FnameEscape(tplugin_repo)
             endif
         endfor
     endif
