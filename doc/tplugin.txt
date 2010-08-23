@@ -204,7 +204,7 @@ g:tplugin_autoload             (default: 1)
             after updating tplugin.
 
                                                     *g:tplugin_autoload_exclude*
-g:tplugin_autoload_exclude     (default: [])
+g:tplugin_autoload_exclude     (default: ['tplugin'])
     A list of repositories for which autoload is disabled when running 
     |:TPluginScan|.
 
@@ -227,7 +227,7 @@ g:tplugin_menu_prefix          (default: '')
     value.
 
                                                     *g:tplugin_scan*
-g:tplugin_scan                 (default: 'cfpta')
+g:tplugin_scan                 (default: 'cfpta_')
     The default value for |:TPluginScan|. A set of identifiers 
     determining the information being collected:
        c ... commands
@@ -236,6 +236,7 @@ g:tplugin_scan                 (default: 'cfpta')
        t ... filetypes
        h ... helptags (always regenerate helptags, see also |g:tplugin_helptags|)
        a ... autoload
+       _ ... include _tplugin.vim files
        all ... all of the above
 
                                                     *:TPlugin*
