@@ -1,19 +1,21 @@
 *tplugin.txt*       A simple plugin loader/runtimepath manager
                     Author: Tom Link, micathom at gmail com
 
-This plugin helps users to avoid loading plugins on startup but only 
-when they are actually needed. It also allows users to maintain their 
-plugins in an alternative directory layout.
+This plugin helps users to deal with plugins that are distributed via 
+source code repositories. Usually, you would make those plugins 
+available to vim by adding the local copies of those repositories to 
+|runtimepath|. The disadvantage of this approach is that the value of 
+|runtimepath| becomes unnecessarily complex and that the plugins are 
+loaded on startup.
 
-Usually, all plugins are installed under one root directory (see 
-|vimfiles|). This makes it potentially cumbersome to install a plugin 
-that is distributed as zip/tgz or is downloaded from a source code 
-repository. It also makes it more difficult than necessary to 
-temporarily use a plugin, e.g., for testing purposes.
+tplugin scans the local copies of those repositories for commands and 
+functions. It then amends the |runtimepath| only if a respective 
+command/function/map is called (similar to the AsNeeded plugin). This 
+helps to keep your |runtimepath| simple and to improve startup time.
 
-tplugin allows users to install plugins in an alternative directory 
-structure where each plugin (consequently referred to as "repo") is 
-installed in a subdirectory. tplugin takes care of modifying 
+In order to achieve this goal, plugins are installed in an alternative 
+directory structure where each plugin (consequently referred to as 
+"repo") is installed in a subdirectory. tplugin takes care of modifying 
 'runtimepath' and of loading the vim script files as necessary.
 
 Alternative directory layout:
