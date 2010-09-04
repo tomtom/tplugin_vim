@@ -299,6 +299,10 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
             exec range . cmd . a:bang .' '. a:args
         catch /^Vim\%((\a\+)\)\=:E481/
             exec cmd . a:bang .' '. a:args
+        catch
+            echohl Error
+            echom v:errmsg
+            echohl NONE
         endtry
     elseif a:type == 2 " Function
     elseif a:type == 3 " Map
