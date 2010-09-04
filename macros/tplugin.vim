@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-08-20.
-" @Revision:    1636
+" @Last Change: 2010-09-04.
+" @Revision:    1643
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -1039,6 +1039,17 @@ endf
 
 function! s:LoadFile(rootrepo, filename) "{{{3
     " echom "DBG s:LoadFile" a:rootrepo a:filename
+    let check_vimenter = s:immediate
+    if check_vimenter
+        redir => autocmds
+        silent autocmd VimEnter
+        redir END
+        for autocmd in split(autocmds, '\n')
+            if autocmd =~ 'VimEnter'
+                exec 'autocmd! '. autocmd
+            endif
+        endfor
+    endif
     let pos0 = len(a:rootrepo) + 1
     call s:RemoveAutoloads(a:filename, [])
     call s:RunHooks(s:before, a:rootrepo, a:filename)
@@ -1048,6 +1059,9 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     " TLogDBG 'runtime! after/'. strpart(a:filename, pos0)
     exec 'runtime! after/'. s:FnameEscape(strpart(a:filename, pos0))
     call s:RunHooks(s:after, a:rootrepo, a:filename)
+    if check_vimenter
+        silent doautocmd VimEnter
+    endif
 endf
 
 
