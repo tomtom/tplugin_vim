@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-09-05.
-" @Revision:    1681
+" @Revision:    1685
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -1305,7 +1305,8 @@ endf
 
 
 " call s:SetRoot(s:FileJoin(s:rtp[0], 'repos'))
-call s:SetRoot(split(finddir('repos', &rtp) ."\n". s:FileJoin(s:rtp[0], 'repos'), '\n')[0])
+" call s:SetRoot(split(finddir('repos', &rtp) ."\n". s:FileJoin(s:rtp[0], 'repos'), '\n')[0])
+call s:SetRoot(expand("<sfile>:p:h:h:h"))
 
 
 augroup TPlugin
