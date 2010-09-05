@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-09-05.
-" @Revision:    1685
+" @Revision:    1690
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -108,6 +108,12 @@ command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
 "
 " If DIRECTORY ends with "*", it doesn't refer to a directory hierarchy 
 " à la vimfiles but to a single "flat" directory.
+"
+" If tplugin was installed a directory called .vim or vimfiles, the 
+" default root directory is the "repos" subdirectory of the first 
+" element in 'runtimepath'. Otherwise, the default root directory is the 
+" directory where tplugin_vim was installed in, i.e. this assumes that 
+" tplugin was loaded from ROOT/tplugin_vim/macros/tplugin.vim
 "
 " Example: >
 "   " A collection of git repositories
@@ -1304,9 +1310,11 @@ function! TPluginCommand(...) "{{{3
 endf
 
 
-" call s:SetRoot(s:FileJoin(s:rtp[0], 'repos'))
-" call s:SetRoot(split(finddir('repos', &rtp) ."\n". s:FileJoin(s:rtp[0], 'repos'), '\n')[0])
-call s:SetRoot(expand("<sfile>:p:h:h:h"))
+if index(['.vim', 'vimfiles'], expand("<sfile>:p:h:h:t")) != -1
+    call s:SetRoot(split(finddir('repos', &rtp) ."\n". s:FileJoin(s:rtp[0], 'repos'), '\n')[0])
+else
+    call s:SetRoot(expand("<sfile>:p:h:h:h"))
+endif
 
 
 augroup TPlugin

@@ -56,8 +56,7 @@ With autoload:
     By default, tplugin has autoload enabled. With autoload, you can use 
     tplugin by (1) loading the macro in your |vimrc| file and then (2) 
     (optional step) setting non-standard root directories. The standard 
-    root-directory is ~/vimfiles/repos (or ~/.vim/repos) and does not 
-    have to be explicitely declared.
+    root-directory is where tplugin was installed in (see |:TPluginRoot|).
 
     Example: >
         
@@ -267,6 +266,12 @@ g:tplugin_scan                 (default: 'cfpta_')
     
     If DIRECTORY ends with "*", it doesn't refer to a directory hierarchy 
     à la vimfiles but to a single "flat" directory.
+    
+    If tplugin was installed a directory called .vim or vimfiles, the 
+    default root directory is the "repos" subdirectory of the first 
+    element in 'runtimepath'. Otherwise, the default root directory is the 
+    directory where tplugin_vim was installed in, i.e. this assumes that 
+    tplugin was loaded from ROOT/tplugin_vim/macros/tplugin.vim
     
     Example: >
       " A collection of git repositories
