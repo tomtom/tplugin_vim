@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-04.
-" @Revision:    1643
+" @Last Change: 2010-09-05.
+" @Revision:    1681
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -158,36 +158,32 @@ command! -bang -nargs=* TPluginScan
             \ call s:ScanRoots(!empty("<bang>"), s:roots, [<f-args>])
 
 
-" :display: :TPluginBefore FILE_RX [GLOB_PATTERNS ...|@REPO]
-" Load dependencies given as GLOB_PATTERNS (see |wildcards|) or as a 
-" REPO's name before loading a file matching the |regexp| pattern 
-" FILE_RX.
-"
-" The files matching FILE_PATTERNS are loaded after the repo's path is 
-" added to the 'runtimepath'. You can thus use partial filenames as you 
-" would use for the |:runtime| command.
+" :display: :TPluginBefore FILE_RX COMMAND
+" |:execute| COMMAND after loading a file matching the |regexp| pattern 
+" FILE_RX. The COMMAND is executed after the repo's path is added to the 
+" 'runtimepath'.
 "
 " This command should be best put into ROOT/tplugin_REPO.vim files, 
 " which are loaded when enabling a source repository.
 "
 " Example: >
 "   " Load master.vim before loading any plugin in a repo
-"   TPluginBefore plugin/.\{-}\.vim plugin/master.vim
+"   TPluginBefore plugin/.\{-}\.vim runtime! macros/master.vim
+"
+" It can also be included in the comments of source files (you have 
+" to prepend it with a "@"): >
+"   "@TPluginBefore my_repo/autoload DoThis
+"   let loaded_yup = 1
 command! -nargs=+ TPluginBefore
-            \ let s:before[[<f-args>][0]] = [<f-args>][1:-1]
+            \ call s:AddHook(s:before, [<f-args>][0], join([<f-args>][1:-1]))
 
 
-" :display: :TPluginAfter FILE_RX [GLOB_PATTERNS ...|@REPO]
-" Load other plugins matching GLOB_PATTERNS (see |wildcards|) or as a 
-" REPO's name after loading a file matching the |regexp| pattern 
+" :display: :TPluginAfter FILE_RX COMMAND
+" |:execute| COMMAND after loading a file matching the |regexp| pattern 
 " FILE_RX.
 " See also |:TPluginBefore|.
-"
-" Example: >
-"   " Load auxiliary plugins after loading master.vim
-"   TPluginAfter plugin/master\.vim plugin/sub_*.vim
 command! -nargs=+ TPluginAfter
-            \ let s:after[[<f-args>][0]] = [<f-args>][1:-1]
+            \ call s:AddHook(s:after, [<f-args>][0], join([<f-args>][1:-1]))
 
 
 
@@ -388,6 +384,7 @@ function! s:SourceAutoloadFunction(rootrepo, autoload_file) "{{{3
         exec printf('autocmd! TPlugin SourceCmd %s', escape(a:autoload_file, '\ '))
         exec 'runtime! '. autoload_file_e
         exec 'runtime! after/'. autoload_file_e
+        " echom "DBG SourceAutoloadFunction after:" string(s:after)
         call s:RunHooks(s:after, a:rootrepo, a:rootrepo .'/autoload/')
     endif
 endf
@@ -1056,12 +1053,14 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     endif
     let pos0 = len(a:rootrepo) + 1
     call s:RemoveAutoloads(a:filename, [])
+    " echom "DBG LoadFile before:" string(s:before)
     call s:RunHooks(s:before, a:rootrepo, a:filename)
     " echom 'DBG source' a:filename filereadable(a:filename)
     " call tlog#Debug(s:FnameEscape(a:filename))
     exec 'source '. s:FnameEscape(a:filename)
     " TLogDBG 'runtime! after/'. strpart(a:filename, pos0)
     exec 'runtime! after/'. s:FnameEscape(strpart(a:filename, pos0))
+    " echom "DBG LoadFile after:" string(s:after)
     call s:RunHooks(s:after, a:rootrepo, a:filename)
     if check_vimenter
         silent doautocmd VimEnter
@@ -1069,35 +1068,30 @@ function! s:LoadFile(rootrepo, filename) "{{{3
 endf
 
 
-function! s:RunHooks(hooks, rootrepo, pluginfile) "{{{3
-    let hooks = filter(keys(a:hooks), 'a:pluginfile =~ v:val')
-    " echom "DBG" string(hooks)
-    if !empty(hooks)
-        call s:LoadDependency(a:rootrepo, hooks, a:hooks)
+function! s:AddHook(hooks, key, value) "{{{3
+    if has_key(a:hooks, a:key)
+        call add(a:hooks[a:key], a:value)
+    else
+        let a:hooks[a:key] = [a:value]
     endif
 endf
 
 
-function! s:LoadDependency(rootrepo, filename_rxs, dict) "{{{3
-    " TLogVAR a:rootrepo, a:filename_rxs
-    " call s:AddRepo([a:rootrepo])
-    for filename_rx in a:filename_rxs
-        let others = a:dict[filename_rx]
-        " echom "DBG s:LoadDependency others:" string(others)
-        for other in others
-            if other[0] == '@'
-                let args = split(other[1 : -1], '\s\+')
-                call call('TPluginRequire', [1, s:GetRootFromRootrepo(a:rootrepo)] + args)
-            else
-                if stridx(other, '*') != -1
-                    let pluginfiles = split(glob(a:rootrepo .'/'. other), '\n')
-                else
-                    let pluginfiles = [a:rootrepo .'/'. other]
-                endif
-                call s:LoadPlugins(0, a:rootrepo, pluginfiles)
-            endif
+function! s:RunHooks(hooks, rootrepo, pluginfile) "{{{3
+    " echom "DBG RunHooks a:pluginfile" string(a:pluginfile)
+    " echom "DBG RunHooks a:hooks" string(keys(a:hooks))
+    let hooks = filter(copy(a:hooks), 'a:pluginfile =~ v:key')
+    " echom "DBG RunHooks hooks:" string(hooks)
+    if !empty(hooks)
+        for [filename_rx, myhooks] in items(hooks)
+            " echom "DBG RunHooks:" filename_rx string(myhooks)
+            " Run each hook only once
+            call remove(a:hooks, filename_rx)
+            for hook in myhooks
+                exec hook
+            endfor
         endfor
-    endfor
+    endif
 endf
 
 

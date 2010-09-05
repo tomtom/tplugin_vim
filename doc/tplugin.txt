@@ -314,34 +314,29 @@ g:tplugin_scan                 (default: 'cfpta_')
 <
 
                                                     *:TPluginBefore*
-:TPluginBefore FILE_RX [GLOB_PATTERNS ...|@REPO]
-    Load dependencies given as GLOB_PATTERNS (see |wildcards|) or as a 
-    REPO's name before loading a file matching the |regexp| pattern 
-    FILE_RX.
-    
-    The files matching FILE_PATTERNS are loaded after the repo's path is 
-    added to the 'runtimepath'. You can thus use partial filenames as you 
-    would use for the |:runtime| command.
+:TPluginBefore FILE_RX COMMAND
+    |:execute| COMMAND after loading a file matching the |regexp| pattern 
+    FILE_RX. The COMMAND is executed after the repo's path is added to the 
+    'runtimepath'.
     
     This command should be best put into ROOT/tplugin_REPO.vim files, 
     which are loaded when enabling a source repository.
     
     Example: >
       " Load master.vim before loading any plugin in a repo
-      TPluginBefore plugin/.\{-}\.vim plugin/master.vim
+      TPluginBefore plugin/.\{-}\.vim runtime! macros/master.vim
+    
+<   It can also be included in the comments of source files (you have 
+    to prepend it with a "@"): >
+      "@TPluginBefore my_repo/autoload DoThis
+      let loaded_yup = 1
 <
 
                                                     *:TPluginAfter*
-:TPluginAfter FILE_RX [GLOB_PATTERNS ...|@REPO]
-    Load other plugins matching GLOB_PATTERNS (see |wildcards|) or as a 
-    REPO's name after loading a file matching the |regexp| pattern 
+:TPluginAfter FILE_RX COMMAND
+    |:execute| COMMAND after loading a file matching the |regexp| pattern 
     FILE_RX.
     See also |:TPluginBefore|.
-    
-    Example: >
-      " Load auxiliary plugins after loading master.vim
-      TPluginAfter plugin/master\.vim plugin/sub_*.vim
-<
 
                                                     *TPluginMap()*
 TPluginMap(map, repo, plugin, ?remap="")
