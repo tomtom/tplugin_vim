@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-05.
-" @Revision:    1690
+" @Last Change: 2010-09-12.
+" @Revision:    1714
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -205,7 +205,6 @@ let s:reg = {}
 let s:repos = {}
 let s:plugins = {}
 let s:done = {'-': {}}
-let s:immediate = 0
 let s:before = {}
 let s:after = {}
 let s:ftypes = {}
@@ -1046,8 +1045,7 @@ endf
 
 function! s:LoadFile(rootrepo, filename) "{{{3
     " echom "DBG s:LoadFile" a:rootrepo a:filename
-    let check_vimenter = s:immediate
-    if check_vimenter
+    if !has('vim_starting')
         redir => autocmds
         silent autocmd VimEnter
         redir END
@@ -1068,7 +1066,7 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     exec 'runtime! after/'. s:FnameEscape(strpart(a:filename, pos0))
     " echom "DBG LoadFile after:" string(s:after)
     call s:RunHooks(s:after, a:rootrepo, a:filename)
-    if check_vimenter
+    if !has('vim_starting')
         silent doautocmd VimEnter
     endif
 endf
@@ -1110,7 +1108,6 @@ function! s:LoadRequiredPlugins() "{{{3
             call s:LoadPlugins(0, rootrepo, pluginfiles)
         endfor
     endif
-    let s:immediate = 1
 endf
 
 
@@ -1130,8 +1127,7 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
     endif
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. s:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
     " TLogVAR pluginfiles
-    " echom "DBG TPluginRequire" (a:mode || s:immediate)
-    if a:mode || s:immediate
+    if a:mode || !has('vim_starting')
         " echom "DBG TPluginRequire" rootrepo string(pluginfiles)
         call s:AddRepo([rootrepo], s:IsFlatRoot(root))
         call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
@@ -1315,7 +1311,6 @@ if index(['.vim', 'vimfiles'], expand("<sfile>:p:h:h:t")) != -1
 else
     call s:SetRoot(expand("<sfile>:p:h:h:h"))
 endif
-
 
 augroup TPlugin
     autocmd!
