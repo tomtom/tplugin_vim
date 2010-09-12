@@ -491,8 +491,8 @@ function! s:Remap(keys, map, remap, def) "{{{3
     endif
     let keys = substitute(a:keys, '<\ze\w\+\(-\w\+\)*>', '\\<', 'g')
     let keys = eval('"'. escape(keys, '"') .'"')
-    " TLogVAR keys, a:keys
-    call feedkeys(keys)
+    " echom "DBG s:Remap" keys len(keys) a:keys len(a:keys)
+    call feedkeys(keys, 't')
     return keys
 endf
 
