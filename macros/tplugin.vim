@@ -407,11 +407,13 @@ endf
 "   " command from the autoloaded plugin:
 "   call TPluginMap('map <f3>', 'mylib', 'myplugin', ':Foo<cr>')
 function! TPluginMap(map, repo, plugin, ...) "{{{3
-    " echom "DBG" a:map
+    " echom "DBG TPluginMap a:map" a:map
     if g:tplugin_autoload
-        let remap = a:0 >= 1 ? substitute(a:1, '<', '<lt>', 'g') : ''
+        " let remap = a:0 >= 1 ? substitute(a:1, '<', '<lt>', 'g') : ''
+        let remap = a:0 >= 1 ? a:1 : ''
         let def   = [s:GetRoot(), a:repo, a:plugin]
         let keys  = s:MapKeys(a:map)
+        " echom "DBG TPluginMap keys" keys
         if empty(keys)
             let keys = matchstr(a:map, '\S\+$')
         endif
@@ -428,11 +430,14 @@ function! TPluginMap(map, repo, plugin, ...) "{{{3
             catch
                 let maparg = ""
             endtry
+            " echom "DBG TPluginMap maparg" maparg
             if empty(maparg)
                 let map = substitute(a:map, '<script>', '', '')
                 let [pre, post] = s:GetMapPrePost(a:map)
-                let map .= ' '. pre . ':call <SID>Remap('. join([string(keys), string(a:map), string(remap), string(def)], ',') .')<cr>' . post
-                " echom "DBG" map
+                let args = join([string(keys), string(a:map), string(remap), string(def)], ',')
+                let args = substitute(args, '<', '<lt>', 'g')
+                let map .= ' '. pre . ':call <SID>Remap('. args .')<cr>' . post
+                " echom "DBG TPluginMap map" map
                 exec map
             endif
         endif
