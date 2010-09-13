@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-12.
-" @Revision:    1714
+" @Last Change: 2010-09-13.
+" @Revision:    1734
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -1050,16 +1050,7 @@ endf
 
 function! s:LoadFile(rootrepo, filename) "{{{3
     " echom "DBG s:LoadFile" a:rootrepo a:filename
-    if !has('vim_starting')
-        redir => autocmds
-        silent autocmd VimEnter
-        redir END
-        for autocmd in split(autocmds, '\n')
-            if autocmd =~ 'VimEnter'
-                exec 'autocmd! '. autocmd
-            endif
-        endfor
-    endif
+    " let vimenter_n0 = len(s:GetVimEnterAutocommands())
     let pos0 = len(a:rootrepo) + 1
     call s:RemoveAutoloads(a:filename, [])
     " echom "DBG LoadFile before:" string(s:before)
@@ -1071,9 +1062,25 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     exec 'runtime! after/'. s:FnameEscape(strpart(a:filename, pos0))
     " echom "DBG LoadFile after:" string(s:after)
     call s:RunHooks(s:after, a:rootrepo, a:filename)
-    if !has('vim_starting')
-        silent doautocmd VimEnter
-    endif
+    " let vimenter_au = s:GetVimEnterAutocommands()
+    " let vimenter_n1 = len(vimenter_au)
+    " if vimenter_n1 > vimenter_n0
+    "     for au in vimenter_au[vimenter_n1 - 1 : -1]
+    "         let cmd = substitute(au, '^\s\+\*\s\+', '', '')
+    "         echom "DBG LoadFile au:" cmd
+    "         exec cmd
+    "     endfor
+    " endif
+endf
+
+
+function! s:GetVimEnterAutocommands() "{{{3
+    redir => autocmds
+    silent autocmd VimEnter
+    redir END
+    let aus = split(autocmds, '\n')
+    call filter(aus, 'v:val[0] == " "')
+    return aus
 endf
 
 

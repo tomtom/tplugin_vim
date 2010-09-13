@@ -1,5 +1,3 @@
-*tplugin.txt*       A simple plugin loader/runtimepath manager
-
 This plugin helps users to deal with plugins that are distributed via 
 source code repositories. Usually, you would make those plugins 
 available to vim by adding the local copies of those repositories to 
