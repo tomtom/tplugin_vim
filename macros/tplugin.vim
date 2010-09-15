@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-14.
-" @Revision:    1755
+" @Last Change: 2010-09-15.
+" @Revision:    1756
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -859,6 +859,7 @@ function! s:MakeHelpTags(roots, recreate, master_dir) "{{{3
             call map(tagfiletags, 's:ProcessHelpTags(v:val, dir)')
             let helptags += tagfiletags
         endfor
+        call sort(helptags)
         call writefile(helptags, master_tags)
     endif
 endf
