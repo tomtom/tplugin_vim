@@ -178,7 +178,6 @@ Contents~
 
         g:tplugin_autoload ........... |g:tplugin_autoload|
         g:tplugin_autoload_exclude ... |g:tplugin_autoload_exclude|
-        g:tplugin_helptags ........... |g:tplugin_helptags|
         g:tplugin_menu_prefix ........ |g:tplugin_menu_prefix|
         g:tplugin_scan ............... |g:tplugin_scan|
         :TPlugin ..................... |:TPlugin|
@@ -209,13 +208,6 @@ g:tplugin_autoload_exclude     (default: ['tplugin'])
     A list of repositories for which autoload is disabled when running 
     |:TPluginScan|.
 
-                                                    *g:tplugin_helptags*
-g:tplugin_helptags             (default: 1)
-    If non-nil and a repo contains no helptags file, generate helptags 
-    for the repository's doc subdirectory.
-    
-    See also |g:tplugin_scan|.
-
                                                     *g:tplugin_menu_prefix*
 g:tplugin_menu_prefix          (default: '')
     If autoload is enabled and this variable is non-empty, build a 
@@ -228,14 +220,15 @@ g:tplugin_menu_prefix          (default: '')
     value.
 
                                                     *g:tplugin_scan*
-g:tplugin_scan                 (default: 'cfpta_')
+g:tplugin_scan                 (default: 'cfptha_')
     The default value for |:TPluginScan|. A set of identifiers 
     determining the information being collected:
        c ... commands
        f ... functions
        p ... <plug> maps
        t ... filetypes
-       h ... helptags (always regenerate helptags, see also |g:tplugin_helptags|)
+       h ... helptags if not available
+       H ... helptags (always regenerate helptags)
        a ... autoload
        _ ... include _tplugin.vim files
        all ... all of the above
