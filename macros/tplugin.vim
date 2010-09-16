@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-15.
-" @Revision:    1756
+" @Last Change: 2010-09-16.
+" @Revision:    1766
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -64,7 +64,6 @@ if !exists('g:tplugin_scan')
     "    p ... <plug> maps
     "    t ... filetypes
     "    h ... helptags if not available
-    "    H ... helptags (always regenerate helptags)
     "    a ... autoload
     "    _ ... include _tplugin.vim files
     "    all ... all of the above
@@ -632,8 +631,8 @@ function! s:ScanRoots(immediate, roots, args) "{{{3
 
     " TLogVAR what, a:roots
 
-    if index(what, 'h', 0, 1) != -1
-        call s:MakeHelpTags(roots, index(what, 'H') != -1, 'guess')
+    if index(what, 'h') != -1
+        call s:MakeHelpTags(roots, 'guess')
     endif
 
 
@@ -820,7 +819,7 @@ function! s:GetRealRoot(rootname) "{{{3
 endf
 
 
-function! s:MakeHelpTags(roots, recreate, master_dir) "{{{3
+function! s:MakeHelpTags(roots, master_dir) "{{{3
     let tagfiles = []
     for root in a:roots
         let [is_tree, root] = s:GetRealRoot(root)
@@ -829,7 +828,8 @@ function! s:MakeHelpTags(roots, recreate, master_dir) "{{{3
             for doc in helpdirs
                 if isdirectory(doc)
                     let tags = s:FileJoin(doc, 'tags')
-                    if a:recreate || !filereadable(tags)
+                    if !filereadable(tags) || s:ShouldMakeHelptags(doc)
+                        " echom "DBG MakeHelpTags" 'helptags '. s:FnameEscape(doc)
                         exec 'helptags '. s:FnameEscape(doc)
                     endif
                     if filereadable(tags)
@@ -844,7 +844,7 @@ function! s:MakeHelpTags(roots, recreate, master_dir) "{{{3
     else
         let master_dir = a:master_dir
     endif
-    if isdirectory(master_dir)
+    if isdirectory(master_dir) && !empty(tagfiles)
         exec 'helptags '. s:FnameEscape(master_dir)
         let master_tags = s:FileJoin(master_dir, 'tags')
         " TLogVAR master_dir, master_tags
@@ -862,6 +862,20 @@ function! s:MakeHelpTags(roots, recreate, master_dir) "{{{3
         call sort(helptags)
         call writefile(helptags, master_tags)
     endif
+endf
+
+
+function! s:ShouldMakeHelptags(dir) "{{{3
+    let tags = s:FileJoin(a:dir, 'tags')
+    let timestamp = getftime(tags)
+    let create = 0
+    for file in split(glob(s:FileJoin(a:dir, '*')), '\n')
+        if getftime(file) > timestamp
+            let create = 1
+            break
+        endif
+    endfor
+    return create
 endf
 
 
