@@ -180,13 +180,13 @@ Contents~
         g:tplugin_autoload_exclude ... |g:tplugin_autoload_exclude|
         g:tplugin_menu_prefix ........ |g:tplugin_menu_prefix|
         g:tplugin_scan ............... |g:tplugin_scan|
+        g:tplugin_file ............... |g:tplugin_file|
         :TPlugin ..................... |:TPlugin|
         :TPluginRoot ................. |:TPluginRoot|
         :TPluginScan ................. |:TPluginScan|
         :TPluginBefore ............... |:TPluginBefore|
         :TPluginAfter ................ |:TPluginAfter|
         TPluginMap ................... |TPluginMap()|
-        TPluginAutoload .............. |TPluginAutoload()|
         TPluginFunction .............. |TPluginFunction()|
         TPluginCommand ............... |TPluginCommand()|
 
@@ -228,10 +228,13 @@ g:tplugin_scan                 (default: 'cfptha_')
        p ... <plug> maps
        t ... filetypes
        h ... helptags if not available
-       H ... helptags (always regenerate helptags)
        a ... autoload
        _ ... include _tplugin.vim files
        all ... all of the above
+
+                                                    *g:tplugin_file*
+g:tplugin_file                 (default: '_tplugin')
+    The prefix for tplugin control files.
 
                                                     *:TPlugin*
 :TPlugin[!] REPOSITORY [PLUGINS ...]
@@ -349,9 +352,6 @@ TPluginMap(map, repo, plugin, ?remap="")
       " command from the autoloaded plugin:
       call TPluginMap('map <f3>', 'mylib', 'myplugin', ':Foo<cr>')
 <
-
-                                                    *TPluginAutoload()*
-TPluginAutoload(prefix, def)
 
                                                     *TPluginFunction()*
 TPluginFunction(FUNCTION, REPOSITORY, [PLUGIN])

@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-09-17.
-" @Revision:    1781
+" @Revision:    1783
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -493,6 +493,7 @@ function! TPluginMenu(item, ...) "{{{3
 endf
 
 
+" :nodoc:
 function! TPluginGetCanonicalFilename(filename) "{{{3
     let filename = substitute(a:filename, '[\\/]\+$', '', '')
     let filename = substitute(filename, '\\', '/', 'g')
@@ -500,6 +501,7 @@ function! TPluginGetCanonicalFilename(filename) "{{{3
 endf
 
 
+" :nodoc:
 " Remove any "/*" suffix.
 function! TPluginGetRootDirOnDisk(dir) "{{{3
     let dir = TPluginGetCanonicalFilename(a:dir)
