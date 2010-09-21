@@ -397,12 +397,14 @@ function! s:GetFiles(root, is_tree) "{{{3
         let files0 = split(glob(TPluginFileJoin(a:root, '*.vim')), '\n')
     endif
     " TLogVAR files0
+    " TLogDBG len(files0)
 
     call filter(files0, '!empty(v:val) && v:val !~ ''[\/]\(\.git\|.svn\|CVS\)\([\/]\|$\)''')
     let pos0 = len(a:root) + 1
     let _tplugins = filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]_tplugin\.vim$''')
-    let exclude_rx = '\V'. join(add(g:tplugin_autoload_exclude, '\[\\/]'. g:tplugin_file .'\(_\w\+\)\?\.vim\$'), '\|')
-    " TLogVAR exclude_rx
+    let excluded_plugins = map(copy(g:tplugin#autoload_exclude), 'substitute(TPluginFileJoin(a:root, v:val), ''[\/]'', ''\\[\\/]'', ''g''). ''\[\/]''')
+    let exclude_rx = '\V'. join(add(excluded_plugins, '\[\\/]'. g:tplugin_file .'\(_\w\+\)\?\.vim\$'), '\|')
+    " TLogVAR excluded_plugins, exclude_rx
     if exclude_rx != '\V'
         call filter(files0, 'v:val !~ exclude_rx')
     endif
