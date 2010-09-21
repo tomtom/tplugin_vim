@@ -3,8 +3,16 @@
 " @GIT:         http://github.com/tomtom/vimtlib/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-09-17.
-" @Revision:    11
+" @Last Change: 2010-09-21.
+" @Revision:    36
+
+
+if !exists('g:tplugin#autoload_exclude')
+    " A list of repositories for which autoload is disabled when running 
+    " |:TPluginScan|.
+    let g:tplugin#autoload_exclude = ['tplugin']   "{{{2
+endif
+
 
 
 " :nodoc:

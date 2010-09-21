@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-09-17.
-" @Revision:    1783
+" @Revision:    1786
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -24,13 +24,6 @@ if !exists('g:tplugin_autoload')
     "   2 ... Enable autoload and automatically run |:TPluginScan| 
     "         after updating tplugin.
     let g:tplugin_autoload = 1   "{{{2
-endif
-
-
-if !exists('g:tplugin_autoload_exclude')
-    " A list of repositories for which autoload is disabled when running 
-    " |:TPluginScan|.
-    let g:tplugin_autoload_exclude = ['tplugin']   "{{{2
 endif
 
 
@@ -60,8 +53,8 @@ if !exists('g:tplugin_scan')
     "    _ ... include _tplugin.vim files
     "    all ... all of the above
     let g:tplugin_scan = 'cfptha_'   "{{{2
-    "    l ... loaded_* variables
 endif
+
 
 if !exists('g:tplugin_file')
     " The prefix for tplugin control files.
@@ -110,7 +103,6 @@ command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
 "   TPluginRoot ~/vimfiles/experimental_plugins/*
 command! -nargs=+ -complete=dir TPluginRoot
             \ call s:SetRoot(<q-args>)
-
 
 
 " :display: :TPluginScan[!] [WHAT] [ROOT]
