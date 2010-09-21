@@ -79,37 +79,22 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
 
             let ftd = {}
 
+            let ftypes= filter(copy(files0), 'strpart(v:val, pos0) =~ ''ftplugin''')
+            " TLogVAR ftypes
             let ftypes= filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]\(ftplugin\|ftdetect\|indent\|syntax\)[\/].\{-}\.vim$''')
             " TLogVAR ftypes
             for ftfile in ftypes
-                let ft = matchstr(ftfile, '[\/]ftplugin[\/]\zs.\{-}\ze_.\{-}\.vim$')
-                if empty(ft)
-                    let ft = fnamemodify(ftfile, ':t:r')
-                endif
+                let ft = matchstr(ftfile, '[\/]\(ftplugin\|ftdetect\|indent\|syntax\)[\/]\zs[^\/.]\+')
                 " TLogVAR ftfile, ft
+                if empty(ft)
+                    continue
+                endif
                 if !has_key(ftd, ft)
                     let ftd[ft] = {}
                 endif
                 let repo = matchstr(ftfile, '^.\{-}\%'. (len(root) + 2) .'c[^\/]\+')
                 " TLogVAR ftfile, repo
                 let ftd[ft][repo] = 1
-            endfor
-
-            " Add ftplugin subdirectories
-            for ftplugin in filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]ftplugin[\/][^\/]\+[\/].\{-}\.vim$''')
-                let ftdir = fnamemodify(ftplugin, ':h')
-                let ft    = fnamemodify(ftdir, ':t:r')
-                if isdirectory(ftdir) && ft != 'ftplugin'
-                    " TLogVAR ftplugin, ft, ftdir
-                    " TLogDBG has_key(ftd, ft)
-                    " TLogDBG isdirectory(ftplugin)
-                    if !has_key(ftd, ft)
-                        let ftd[ft] = {}
-                    endif
-                    let repo = matchstr(ftplugin, '^.\{-}\%'. (len(root) + 2) .'c[^\/]\+')
-                    " TLogVAR repo
-                    let ftd[ft][repo] = 1
-                endif
             endfor
 
             for [ft, repos] in items(ftd)
