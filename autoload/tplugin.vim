@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/vimtlib/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-09-21.
-" @Revision:    36
+" @Last Change: 2010-09-25.
+" @Revision:    40
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -398,6 +398,7 @@ function! s:GetFiles(root, is_tree) "{{{3
     let excluded_plugins = map(copy(g:tplugin#autoload_exclude), 'substitute(TPluginFileJoin(a:root, v:val), ''[\/]'', ''\\[\\/]'', ''g''). ''\[\/]''')
     let exclude_rx = '\V'. join(add(excluded_plugins, '\[\\/]'. g:tplugin_file .'\(_\w\+\)\?\.vim\$'), '\|')
     " TLogVAR excluded_plugins, exclude_rx
+    " TLogDBG len(files0)
     if exclude_rx != '\V'
         call filter(files0, 'v:val !~ exclude_rx')
     endif

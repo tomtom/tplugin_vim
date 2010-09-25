@@ -149,7 +149,10 @@ Related work~
     - Marc Weber's vim-addon-manager (my main source of inspiration for 
       this script), which also provides downloading plugins and 
       automatic dependency management:
-      http://github.com/MarcWeber/vim-plugin-manager (vimscript #2905)
+      http://github.com/MarcWeber/vim-addon-manager (vimscript #2905)
+
+    - ZyX's vimpluginloader: 
+      http://www.vim.org/scripts/script.php?script_id=3184
 
     - Tim Pope's pathogen (vimscript #2332).
 
@@ -177,10 +180,10 @@ Also available via git: http://github.com/tomtom/vimtlib/
 Contents~
 
         g:tplugin_autoload ........... |g:tplugin_autoload|
-        g:tplugin_autoload_exclude ... |g:tplugin_autoload_exclude|
         g:tplugin_menu_prefix ........ |g:tplugin_menu_prefix|
         g:tplugin_scan ............... |g:tplugin_scan|
         g:tplugin_file ............... |g:tplugin_file|
+        g:tplugin_load_plugin ........ |g:tplugin_load_plugin|
         :TPlugin ..................... |:TPlugin|
         :TPluginRoot ................. |:TPluginRoot|
         :TPluginScan ................. |:TPluginScan|
@@ -189,6 +192,7 @@ Contents~
         TPluginMap ................... |TPluginMap()|
         TPluginFunction .............. |TPluginFunction()|
         TPluginCommand ............... |TPluginCommand()|
+        g:tplugin#autoload_exclude ... |g:tplugin#autoload_exclude|
 
 
 ========================================================================
@@ -202,11 +206,6 @@ g:tplugin_autoload             (default: 1)
       1 ... Enable autoload (default)
       2 ... Enable autoload and automatically run |:TPluginScan| 
             after updating tplugin.
-
-                                                    *g:tplugin_autoload_exclude*
-g:tplugin_autoload_exclude     (default: ['tplugin'])
-    A list of repositories for which autoload is disabled when running 
-    |:TPluginScan|.
 
                                                     *g:tplugin_menu_prefix*
 g:tplugin_menu_prefix          (default: '')
@@ -236,15 +235,18 @@ g:tplugin_scan                 (default: 'cfptha_')
 g:tplugin_file                 (default: '_tplugin')
     The prefix for tplugin control files.
 
+                                                    *g:tplugin_load_plugin*
+g:tplugin_load_plugin          (default: '*')
+    When an autoload function or filetype plugin is loaded, the 
+    respective plugin is added to 'runtimepath'. This variable decides 
+    whether the corresponding plugin should be loaded too. Possible 
+    values are:
+    
+      . :: Don't load any plugins
+      * :: Load all plugins
+
                                                     *:TPlugin*
 :TPlugin[!] REPOSITORY [PLUGINS ...]
-    Register certain plugins for being sourced at |VimEnter| time.
-    See |tplugin.txt| for details.
-    
-    With the optional '!', the plugin will be loaded immediately.
-    In interactive use, i.e. once vim was loaded, plugins will be loaded 
-    immediately anyway.
-    
     IF REPOSITORY contains a slash or a backslash, it is considered the 
     path relative from the current root directory to the plugin directory. 
     This allows you to deal with repositories with a non-standard 
@@ -370,6 +372,15 @@ TPluginCommand(COMMAND, REPOSITORY, [PLUGIN])
     Example: >
       TPluginCommand TSelectBuffer vimtlib tselectbuffer
 <
+
+
+========================================================================
+autoload/tplugin.vim~
+
+                                                    *g:tplugin#autoload_exclude*
+g:tplugin#autoload_exclude     (default: ['tplugin'])
+    A list of repositories for which autoload is disabled when running 
+    |:TPluginScan|.
 
 
 

@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-17.
-" @Revision:    1786
+" @Last Change: 2010-09-25.
+" @Revision:    1791
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -62,6 +62,18 @@ if !exists('g:tplugin_file')
 endif
 
 
+if !exists('g:tplugin_load_plugin')
+    " When an autoload function or filetype plugin is loaded, the 
+    " respective plugin is added to 'runtimepath'. This variable decides 
+    " whether the corresponding plugin should be loaded too. Possible 
+    " values are:
+    "
+    "   . :: Don't load any plugins
+    "   * :: Load all plugins
+    let g:tplugin_load_plugin = '*'   "{{{2
+endif
+
+
 " :display: :TPlugin[!] REPOSITORY [PLUGINS ...]
 " Register certain plugins for being sourced at |VimEnter| time.
 " See |tplugin.txt| for details.
@@ -69,7 +81,7 @@ endif
 " With the optional '!', the plugin will be loaded immediately.
 " In interactive use, i.e. once vim was loaded, plugins will be loaded 
 " immediately anyway.
-"
+
 " IF REPOSITORY contains a slash or a backslash, it is considered the 
 " path relative from the current root directory to the plugin directory. 
 " This allows you to deal with repositories with a non-standard 
@@ -301,7 +313,7 @@ endf
 function! s:LoadFiletype(filetype) "{{{3
     let repos = remove(s:ftypes, a:filetype)
     for repo in repos
-        call TPluginRequire(1, repo, '.', '.')
+        call TPluginRequire(1, repo, '.', g:tplugin_load_plugin)
     endfor
     exec 'setfiletype '. a:filetype
 endf
@@ -314,7 +326,7 @@ function! s:AutoloadFunction(fn) "{{{3
             let def = remove(s:autoloads, prefix)
             let root = def[0]
             let repo = def[1]
-            call TPluginRequire(1, root, repo, '.')
+            call TPluginRequire(1, root, repo, g:tplugin_load_plugin)
             let [root, rootrepo, plugindir] = s:GetRootPluginDir(root, repo)
             call s:RunHooks(s:before, rootrepo, rootrepo .'/autoload/')
             let autoload_file = 'autoload/'. prefix .'.vim'
@@ -593,8 +605,9 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     let pos0 = len(a:rootrepo) + 1
     call s:RemoveAutoloads(a:filename, [])
     call s:RunHooks(s:before, a:rootrepo, a:filename)
-    exec 'source '. TPluginFnameEscape(a:filename)
-    exec 'runtime! after/'. TPluginFnameEscape(strpart(a:filename, pos0))
+    " exec 'source '. TPluginFnameEscape(a:filename)
+    " exec 'runtime! after/'. TPluginFnameEscape(strpart(a:filename, pos0))
+    exec 'runtime! '. TPluginFnameEscape(strpart(a:filename, pos0))
     call s:RunHooks(s:after, a:rootrepo, a:filename)
 endf
 
@@ -645,7 +658,7 @@ endf
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
-    if empty(a:000)
+    if empty(a:000) || a:1 == '*'
         let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
     elseif a:1 == '.'
         let pluginfiles = []
