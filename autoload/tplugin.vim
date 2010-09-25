@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2010-09-25.
-" @Revision:    40
+" @Revision:    41
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -14,6 +14,20 @@ if !exists('g:tplugin#autoload_exclude')
 endif
 
 
+if !exists('g:tplugin#scan')
+    " The default value for |:TPluginScan|. A set of identifiers 
+    " determining the information being collected:
+    "    c ... commands
+    "    f ... functions
+    "    p ... <plug> maps
+    "    t ... filetypes
+    "    h ... helptags if not available
+    "    a ... autoload
+    "    _ ... include _tplugin.vim files
+    "    all ... all of the above
+    let g:tplugin#scan = 'cfptha_'   "{{{2
+endif
+
 
 " :nodoc:
 " Write autoload information for all known root directories to 
@@ -21,7 +35,7 @@ endif
 function! tplugin#ScanRoots(immediate, roots, args) "{{{3
     let awhat = get(a:args, 0, '')
     if empty(awhat)
-        let awhat = g:tplugin_scan
+        let awhat = g:tplugin#scan
     endif
     if awhat == 'all'
         let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', '_']

@@ -41,21 +41,6 @@ if !exists('g:tplugin_menu_prefix')
 endif
 
 
-if !exists('g:tplugin_scan')
-    " The default value for |:TPluginScan|. A set of identifiers 
-    " determining the information being collected:
-    "    c ... commands
-    "    f ... functions
-    "    p ... <plug> maps
-    "    t ... filetypes
-    "    h ... helptags if not available
-    "    a ... autoload
-    "    _ ... include _tplugin.vim files
-    "    all ... all of the above
-    let g:tplugin_scan = 'cfptha_'   "{{{2
-endif
-
-
 if !exists('g:tplugin_file')
     " The prefix for tplugin control files.
     let g:tplugin_file = '_tplugin'   "{{{2
@@ -63,14 +48,18 @@ endif
 
 
 if !exists('g:tplugin_load_plugin')
+    " A list of pairs [REGEXP, VALUE] that determine how tplugin handles 
+    " autoload function calls and filetype plugins.
+    "
     " When an autoload function or filetype plugin is loaded, the 
     " respective plugin is added to 'runtimepath'. This variable decides 
     " whether the corresponding plugin should be loaded too. Possible 
     " values are:
     "
     "   . :: Don't load any plugins
-    "   * :: Load all plugins
-    let g:tplugin_load_plugin = '*'   "{{{2
+    "   * :: Load all plugins (default if no REGEXP pattern matches the 
+    "        full repo directory name)
+    let g:tplugin_load_plugin = []   "{{{2
 endif
 
 
@@ -122,7 +111,7 @@ command! -nargs=+ -complete=dir TPluginRoot
 " autoload information in "ROOT/_tplugin.vim".
 "
 " Where WHAT is a set of letters determining the information being 
-" collected. See |g:tplugin_scan| for details.
+" collected. See |g:tplugin#scan| for details.
 "
 " With the optional '!', the autocommands are immediatly usable.
 "
@@ -913,4 +902,9 @@ with the same name.
 - Added support for @TPluginMap, @TPluginBefore, @TPluginAfter annotations
 - TPluginMap() restores the proper mode
 - Load after/autoload/* files
+
+0.10
+- Make helptags of repositories that weren't yet loaded available to the 
+user.
+- Renamed variables: g:tplugin#autoload_exclude, g:tplugin#scan
 
