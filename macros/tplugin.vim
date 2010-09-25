@@ -546,21 +546,23 @@ function! s:AddRepo(rootrepos, isflat) "{{{3
     if !empty(rootrepos)
         for rootrepo in rootrepos
             let s:done[rootrepo] = {}
-            if !a:isflat
-                call insert(rtp, rootrepo, idx)
-                let after_dir = TPluginFileJoin(rootrepo, 'after')
-                if isdirectory(after_dir)
-                    call insert(rtp, after_dir, -1)
+            if index(rtp, rootrepo) == -1
+                if !a:isflat
+                    call insert(rtp, rootrepo, idx)
+                    let after_dir = TPluginFileJoin(rootrepo, 'after')
+                    if isdirectory(after_dir)
+                        call insert(rtp, after_dir, -1)
+                    endif
+                    let &rtp = join(rtp, ',')
+                    let repo_tplugin = rootrepo .'/'. g:tplugin_file .'.vim'
+                    if filereadable(repo_tplugin)
+                        exec 'source '. TPluginFnameEscape(repo_tplugin)
+                    endif
                 endif
-                let &rtp = join(rtp, ',')
-                let repo_tplugin = rootrepo .'/'. g:tplugin_file .'.vim'
-                if filereadable(repo_tplugin)
-                    exec 'source '. TPluginFnameEscape(repo_tplugin)
+                let tplugin_repo = fnamemodify(rootrepo, ':h') .'/'. g:tplugin_file .'_'. fnamemodify(rootrepo, ':t') .'.vim'
+                if filereadable(tplugin_repo)
+                    exec 'source '. TPluginFnameEscape(tplugin_repo)
                 endif
-            endif
-            let tplugin_repo = fnamemodify(rootrepo, ':h') .'/'. g:tplugin_file .'_'. fnamemodify(rootrepo, ':t') .'.vim'
-            if filereadable(tplugin_repo)
-                exec 'source '. TPluginFnameEscape(tplugin_repo)
             endif
         endfor
     endif
