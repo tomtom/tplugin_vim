@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-09-25.
-" @Revision:    1791
+" @Revision:    1808
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -294,15 +294,15 @@ function! TPluginFiletype(filetype, repos) "{{{3
     if !has_key(s:ftypes, a:filetype)
         let s:ftypes[a:filetype] = []
     endif
-    let repos = map(copy(a:repos), 's:GetRoot() ."/". v:val')
-    call extend(s:ftypes[a:filetype], repos)
+    let rootrepos = map(copy(a:repos), 's:GetRoot() ."/". v:val')
+    call extend(s:ftypes[a:filetype], rootrepos)
 endf
 
 
 function! s:LoadFiletype(filetype) "{{{3
-    let repos = remove(s:ftypes, a:filetype)
-    for repo in repos
-        call TPluginRequire(1, repo, '.', g:tplugin_load_plugin)
+    let rootrepos = remove(s:ftypes, a:filetype)
+    for rootrepo in rootrepos
+        call TPluginRequire(1, rootrepo, '.', s:GetPluginPattern(rootrepo))
     endfor
     exec 'setfiletype '. a:filetype
 endf
@@ -315,8 +315,8 @@ function! s:AutoloadFunction(fn) "{{{3
             let def = remove(s:autoloads, prefix)
             let root = def[0]
             let repo = def[1]
-            call TPluginRequire(1, root, repo, g:tplugin_load_plugin)
             let [root, rootrepo, plugindir] = s:GetRootPluginDir(root, repo)
+            call TPluginRequire(1, root, repo, s:GetPluginPattern(rootrepo))
             call s:RunHooks(s:before, rootrepo, rootrepo .'/autoload/')
             let autoload_file = 'autoload/'. prefix .'.vim'
             exec printf('autocmd TPlugin SourceCmd */%s call s:SourceAutoloadFunction(%s, %s)',
@@ -327,6 +327,17 @@ function! s:AutoloadFunction(fn) "{{{3
         let def = s:functions[a:fn]
         call s:Autoload(2, def, '', [], [])
     endif
+endf
+
+
+function! s:GetPluginPattern(rootrepo) "{{{3
+    " TLogVAR a:rootrepo
+    for [rx, val] in g:tplugin_load_plugin
+        if a:rootrepo =~ rx
+            return val
+        endif
+    endfor
+    return '*'
 endf
 
 
@@ -516,6 +527,9 @@ function! s:SetRoot(dir) "{{{3
     " Don't reload the file. Old autoload definitions won't be 
     " overwritten anyway.
     if idx == -1 && g:tplugin_autoload
+        " if s:IsFlatRoot(root)
+        "     call add(g:tplugin_load_plugin, ['\V'. escape(root, '\') .'\>\(\[\/]\|\$\)', '.'])
+        " endif
         let rootdir = TPluginGetRootDirOnDisk(root)
         let autoload = TPluginFileJoin(rootdir, g:tplugin_file .'.vim')
         if filereadable(autoload)
