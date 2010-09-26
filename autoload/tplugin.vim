@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/vimtlib/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-09-25.
-" @Revision:    41
+" @Last Change: 2010-09-26.
+" @Revision:    42
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -143,7 +143,7 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
                     let fidx += 1
                     call tlib#progressbar#Display(fidx)
                 endif
-                let pluginfile = TPluginGetCanonicalFilename(file)
+                " let pluginfile = TPluginGetCanonicalFilename(file)
                 if is_tree
                     let repo = matchstr(strpart(file, pos0), '^[^\/]\+\ze[\/]')
                 else

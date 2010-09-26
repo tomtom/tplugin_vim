@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-25.
-" @Revision:    1808
+" @Last Change: 2010-09-26.
+" @Revision:    1815
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -806,6 +806,14 @@ function! TPluginCommand(...) "{{{3
     let cmd = a:000[0]
     if g:tplugin_autoload && exists(':'. matchstr(cmd, '\s\zs\u\w*$')) != 2
         let args = [s:GetRoot()] + a:000
+        if a:0 <= 1
+            echoerr "TPluginCommand: too few arguments: ". string(a:000)
+        elseif a:0 <= 2
+            call add(args, '*')
+        elseif a:0 <= 3
+        else
+            echoerr "TPluginCommand: too many arguments: ". string(a:000)
+        endif
         if cmd =~ '\s-range[[:space:]=]'
             let range = '["<line1>", "<line2>"]'
         elseif cmd =~ '\s-count[[:space:]=]'
