@@ -193,6 +193,7 @@ Contents~
         TPluginCommand ............... |TPluginCommand()|
         g:tplugin#autoload_exclude ... |g:tplugin#autoload_exclude|
         g:tplugin#scan ............... |g:tplugin#scan|
+        tplugin#ScanRoots ............ |tplugin#ScanRoots()|
 
 
 ========================================================================
@@ -385,6 +386,14 @@ g:tplugin#scan                 (default: 'cfptha_')
        a ... autoload
        _ ... include _tplugin.vim files
        all ... all of the above
+
+                                                    *tplugin#ScanRoots()*
+tplugin#ScanRoots(immediate, roots, args)
+    Write autoload information for each root directory to 
+    "ROOT/_tplugin.vim".
+    Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
+    definitions. The filename of such canned autoload definitions is a 
+    very |magic| |regexp| that should match the repo name.
 
 
 

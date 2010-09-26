@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2010-09-26.
-" @Revision:    42
+" @Revision:    67
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -29,10 +29,21 @@ if !exists('g:tplugin#scan')
 endif
 
 
-" :nodoc:
-" Write autoload information for all known root directories to 
-" "ROOT/tplugin.vim".
+" Write autoload information for each root directory to 
+" "ROOT/_tplugin.vim".
+" Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
+" definitions. The filename of such canned autoload definitions is a 
+" very |magic| |regexp| that should match the repo name.
 function! tplugin#ScanRoots(immediate, roots, args) "{{{3
+    let prefabs = {}
+    for prefab in split(globpath(&rtp, 'autoload/tplugin/autoload/*.vim'), '\n')
+        let rx = '\v^'.  substitute(fnamemodify(prefab, ':t:r'), ')', ')?', 'g') .'$'
+        " TLogVAR prefab, rx
+        if !has_key(prefabs, rx)
+            let prefabs[rx] = prefab
+        endif
+    endfor
+
     let awhat = get(a:args, 0, '')
     if empty(awhat)
         let awhat = g:tplugin#scan
@@ -55,7 +66,6 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
     if index(what, 'h') != -1
         call s:MakeHelpTags(roots, 'guess')
     endif
-
 
     for root in roots
 
@@ -182,7 +192,18 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
 
                 endif
 
-                let out += s:ScanSource(file, repo, plugin, what, lines)
+                let autoload = s:ScanSource(file, repo, plugin, what, lines)
+                " TLogVAR file, repo, plugin
+                " TLogVAR keys(prefabs)
+                for [rx, prefab] in items(prefabs)
+                    if repo =~ rx
+                        let autoload += readfile(prefab)
+                        break
+                    endif
+                endfor
+                if !empty(autoload)
+                    let out += autoload
+                endif
             endfor
         finally
             unlet s:scan_repo_done
