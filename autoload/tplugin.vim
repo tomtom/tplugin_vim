@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/vimtlib/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-09-26.
-" @Revision:    67
+" @Last Change: 2010-09-27.
+" @Revision:    70
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -32,15 +32,14 @@ endif
 " Write autoload information for each root directory to 
 " "ROOT/_tplugin.vim".
 " Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
-" definitions. The filename of such canned autoload definitions is a 
-" very |magic| |regexp| that should match the repo name.
+" definitions. The file's basenames are repo names.
 function! tplugin#ScanRoots(immediate, roots, args) "{{{3
     let prefabs = {}
     for prefab in split(globpath(&rtp, 'autoload/tplugin/autoload/*.vim'), '\n')
-        let rx = '\v^'.  substitute(fnamemodify(prefab, ':t:r'), ')', ')?', 'g') .'$'
-        " TLogVAR prefab, rx
-        if !has_key(prefabs, rx)
-            let prefabs[rx] = prefab
+        let prefab_key = fnamemodify(prefab, ':t:r')
+        " TLogVAR prefab, prefab_key
+        if !has_key(prefabs, prefab_key)
+            let prefabs[prefab_key] = prefab
         endif
     endfor
 
@@ -195,12 +194,9 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
                 let autoload = s:ScanSource(file, repo, plugin, what, lines)
                 " TLogVAR file, repo, plugin
                 " TLogVAR keys(prefabs)
-                for [rx, prefab] in items(prefabs)
-                    if repo =~ rx
-                        let autoload += readfile(prefab)
-                        break
-                    endif
-                endfor
+                if has_key(prefabs, repo)
+                    let autoload += readfile(prefabs[repo])
+                endif
                 if !empty(autoload)
                     let out += autoload
                 endif
