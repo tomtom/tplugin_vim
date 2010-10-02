@@ -16,4 +16,4 @@ call TPluginCommand('com! -nargs=* Gmove', 'fugitive')
 call TPluginCommand('com! -nargs=* -range Gblame', 'fugitive')
 call TPluginCommand('com! Gremove', 'fugitive')
 call TPluginCommand('com! Gstatus', 'fugitive')
-TPluginAfter \<fugitive\> edit
+TPluginAfter \<fugitive\> do fugitive_utility VimEnter | do fugitive_utility User Fugitive | do fugitive BufReadPost
