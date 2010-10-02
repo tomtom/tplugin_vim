@@ -392,8 +392,7 @@ tplugin#ScanRoots(immediate, roots, args)
     Write autoload information for each root directory to 
     "ROOT/_tplugin.vim".
     Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
-    definitions. The filename of such canned autoload definitions is a 
-    very |magic| |regexp| that should match the repo name.
+    definitions. The file's basenames are repo names.
 
 
 
