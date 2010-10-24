@@ -1,10 +1,10 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
-" @GIT:         http://github.com/tomtom/vimtlib/
+" @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-09-27.
-" @Revision:    70
+" @Last Change: 2010-10-24.
+" @Revision:    71
 
 
 if !exists('g:tplugin#autoload_exclude')
