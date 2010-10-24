@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-09-26.
-" @Revision:    1815
+" @Last Change: 2010-10-24.
+" @Revision:    1818
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -368,7 +368,17 @@ endf
 function! TPluginMap(map, repo, plugin, ...) "{{{3
     if g:tplugin_autoload
         let remap = a:0 >= 1 ? a:1 : ''
-        let def   = [s:GetRoot(), a:repo, a:plugin]
+        if has_key(s:plugins, a:plugin)
+            let repo = s:plugins[a:plugin]
+            if repo == a:repo
+                let root = s:repos[repo]
+            else
+                let root = s:GetRoot()
+            endif
+        else
+            let root = s:GetRoot()
+        endif
+        let def   = [root, a:repo, a:plugin]
         let keys  = s:MapKeys(a:map)
         if empty(keys)
             let keys = matchstr(a:map, '\S\+$')
