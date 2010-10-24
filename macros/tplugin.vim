@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2010-10-24.
-" @Revision:    1818
+" @Revision:    1837
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -92,7 +92,7 @@ command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
 " à la vimfiles but to a single "flat" directory.
 "
 " If tplugin was installed a directory called .vim or vimfiles, the 
-" default root directory is the "repos" subdirectory of the first 
+" default root directory is the "bundle" subdirectory of the first 
 " element in 'runtimepath'. Otherwise, the default root directory is the 
 " directory where tplugin_vim was installed in, i.e. this assumes that 
 " tplugin was loaded from ROOT/tplugin_vim/macros/tplugin.vim
@@ -526,6 +526,7 @@ endf
 
 
 function! s:SetRoot(dir) "{{{3
+    " echom "DBG SetRoot" a:dir
     let root = TPluginGetCanonicalFilename(fnamemodify(a:dir, ':p'))
     let idx = index(s:roots, root)
     if idx > 0
@@ -836,8 +837,26 @@ function! TPluginCommand(...) "{{{3
 endf
 
 
+" :display: TPluginAddRoots(?subdir="bundle")
+" Add all directories named SUBDIR as roots.
+function! TPluginAddRoots(...) "{{{3
+    let subdir = a:0 >= 1 ? a:1 : 'bundle'
+    let myroot = ''
+    for dir in split(finddir(subdir, &rtp), '\n')
+        " echom "DBG TPluginAddRoots" dir
+        if empty(myroot)
+            let myroot = dir
+        endif
+        call s:SetRoot(dir)
+    endfor
+    if !empty(myroot)
+        call s:SetRoot(myroot)
+    endif
+endf
+
+
 if index(['.vim', 'vimfiles'], expand("<sfile>:p:h:h:t")) != -1
-    call s:SetRoot(split(finddir('repos', &rtp) ."\n". TPluginFileJoin(s:rtp[0], 'repos'), '\n')[0])
+    call TPluginAddRoots()
 else
     call s:SetRoot(expand("<sfile>:p:h:h:h"))
 endif
@@ -850,7 +869,6 @@ augroup TPlugin
         autocmd FuncUndefined * call s:AutoloadFunction(expand("<afile>"))
         autocmd FileType * if has_key(s:ftypes, &ft) | call s:LoadFiletype(&ft) | endif
     endif
-
 augroup END
 
 
