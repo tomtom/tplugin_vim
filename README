@@ -2,20 +2,23 @@ This plugin helps users to deal with plugins that are distributed via
 source code repositories. Usually, you would make those plugins 
 available to vim by adding the local copies of those repositories to 
 |runtimepath|. The disadvantage of this approach is that the value of 
-|runtimepath| becomes unnecessarily complex and that the plugins are 
-loaded on startup.
+|runtimepath| becomes unnecessarily complex. If this is done at startup (e.g. 
+when using the pathogen plugin), all plugins are loaded on each startup, which 
+takes time.
 
 tplugin scans the local copies of those repositories for commands and 
 functions. It then amends the |runtimepath| only if a respective 
 command/function/map is called (similar to the AsNeeded plugin). This 
-helps to keep your |runtimepath| simple and to improve startup time.
+helps to keep your |runtimepath| simple and improve startup time.
 
 In order to achieve this goal, plugins are installed in an alternative 
 directory structure where each plugin (consequently referred to as 
-"repo") is installed in a subdirectory. tplugin takes care of modifying 
-'runtimepath' and of loading the vim script files as necessary.
+"repo" or "bundle") is installed in a subdirectory. tplugin takes care of 
+"modifying 'runtimepath' and of loading the vim script files as necessary. For 
+"compatibility with pathogen, all "bundle" subdirectories in the 'runtimepath' 
+"are considered as roots -- unless tplugin seems to be installed as repo itself.
 
-Alternative directory layout:
+alternative directory layout:
 
     ROOT/
       repo1/
@@ -59,7 +62,7 @@ With autoload:
         
         runtime macros/tplugin.vim
         " Only necessary if you use a non-standard root directory
-        TPluginRoot /home/x/src/repos
+        TPluginRoot /home/x/src/bundle
 
 <   (3) Collect the autoload information by running the |:TPluginScan| 
     command. (4) Restart vim.
@@ -87,7 +90,7 @@ Without autoload:
 
         runtime macros/tplugin.vim
         " Only necessary if you use a non-standard root directory
-        TPluginRoot /home/x/src/repos
+        TPluginRoot /home/x/src/bundle
         " Load all plugins in repo1
         TPlugin repo1
         " Load only specified plugins from repo2
@@ -97,17 +100,17 @@ Without autoload:
     vimrc file before making any changes to the 'runtimepath'. If you 
     don't change the 'runtimepath', the position is of no importance.
 
-    Then install your plugins/repos in the root directory. After 
+    Then install your plugins/bundles/repos in the root directory. After 
     restarting vim, type :TPluginScan!
 
     Full example as it could be found in a |vimrc| file: >
 
         runtime macros/tplugin.vim
-        TPluginRoot F:\repos
+        TPluginRoot F:\vim-addons
         TPlugin vim-surround
-        let g:snippets_dir = 'X:\vimfiles\snippets,F:\repos\snipmate.vim\snippets'
+        let g:snippets_dir = 'X:\vimfiles\snippets,F:\vim-addons\snipmate.vim\snippets'
         TPlugin snipmate.vim
-        TPlugin! vimtlib 02tlib
+        TPlugin! tlib_vim 02tlib
 
 
 CAVEAT: If you have a file after/plugin/foo.vim in you user vimfiles 
@@ -146,11 +149,17 @@ Related work~
     - Marc Weber's vim-addon-manager (my main source of inspiration for 
       this script), which also provides downloading plugins and 
       automatic dependency management:
-      http://github.com/MarcWeber/vim-plugin-manager (vimscript #2905)
+      http://github.com/MarcWeber/vim-addon-manager (vimscript #2905)
 
     - Tim Pope's pathogen (vimscript #2332).
 
     - Charles E. Campbell's AsNeeded (vimscript #915)
+
+    - A comprehensive list of plugin managers (download and update local copies 
+      of vim plugins): http://vim-scripts.org/tools.html
+
+    - The ruby script I personally use to update local copies of source 
+      code repositories: http://github.com/tomtom/vcsdo
 
 
 -----------------------------------------------------------------------

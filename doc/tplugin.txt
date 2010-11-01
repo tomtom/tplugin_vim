@@ -154,12 +154,15 @@ Related work~
       automatic dependency management:
       http://github.com/MarcWeber/vim-addon-manager (vimscript #2905)
 
-    - ZyX's vimpluginloader: 
-      http://www.vim.org/scripts/script.php?script_id=3184
-
     - Tim Pope's pathogen (vimscript #2332).
 
     - Charles E. Campbell's AsNeeded (vimscript #915)
+
+    - A comprehensive list of plugin managers (download and update local copies 
+      of vim plugins): http://vim-scripts.org/tools.html
+
+    - The ruby script I personally use to update local copies of source 
+      code repositories: http://github.com/tomtom/vcsdo
 
 
 -----------------------------------------------------------------------
@@ -182,22 +185,26 @@ Also available via git: http://github.com/tomtom/tplugin_vim/
 ========================================================================
 Contents~
 
-        g:tplugin_autoload ........... |g:tplugin_autoload|
-        g:tplugin_menu_prefix ........ |g:tplugin_menu_prefix|
-        g:tplugin_file ............... |g:tplugin_file|
-        g:tplugin_load_plugin ........ |g:tplugin_load_plugin|
-        :TPlugin ..................... |:TPlugin|
-        :TPluginRoot ................. |:TPluginRoot|
-        :TPluginScan ................. |:TPluginScan|
-        :TPluginBefore ............... |:TPluginBefore|
-        :TPluginAfter ................ |:TPluginAfter|
-        TPluginMap ................... |TPluginMap()|
-        TPluginFunction .............. |TPluginFunction()|
-        TPluginCommand ............... |TPluginCommand()|
-        TPluginAddRoots .............. |TPluginAddRoots()|
-        g:tplugin#autoload_exclude ... |g:tplugin#autoload_exclude|
-        g:tplugin#scan ............... |g:tplugin#scan|
-        tplugin#ScanRoots ............ |tplugin#ScanRoots()|
+        g:tplugin_autoload ................. |g:tplugin_autoload|
+        g:tplugin_menu_prefix .............. |g:tplugin_menu_prefix|
+        g:tplugin_file ..................... |g:tplugin_file|
+        g:tplugin_load_plugin .............. |g:tplugin_load_plugin|
+        :TPlugin ........................... |:TPlugin|
+        :TPluginRoot ....................... |:TPluginRoot|
+        :TPluginScan ....................... |:TPluginScan|
+        :TPluginBefore ..................... |:TPluginBefore|
+        :TPluginAfter ...................... |:TPluginAfter|
+        :TPluginUpdate ..................... |:TPluginUpdate|
+        TPluginMap ......................... |TPluginMap()|
+        TPluginFunction .................... |TPluginFunction()|
+        TPluginCommand ..................... |TPluginCommand()|
+        TPluginAddRoots .................... |TPluginAddRoots()|
+        g:tplugin#autoload_exclude ......... |g:tplugin#autoload_exclude|
+        g:tplugin#scan ..................... |g:tplugin#scan|
+        tplugin#ScanRoots .................. |tplugin#ScanRoots()|
+        g:tplugin#vcsdo#script ............. |g:tplugin#vcsdo#script|
+        g:tplugin#vcsdo#log_buffer ......... |g:tplugin#vcsdo#log_buffer|
+        g:tplugin#vcsdo#exclude_roots_rx ... |g:tplugin#vcsdo#exclude_roots_rx|
 
 
 ========================================================================
@@ -337,6 +344,15 @@ g:tplugin_load_plugin          (default: [])
     FILE_RX.
     See also |:TPluginBefore|.
 
+                                                    *:TPluginUpdate*
+TPluginUpdate[!]
+    Update all repos (VCS types only).
+    Requires compiled-in ruby support and http://github.com/tomtom/vcsdo 
+    to be installed. You also have to set |g:tplugin#vcsdo#script|.
+    
+    With the optional !, show which commands would be issued but don't do 
+    anything.
+
                                                     *TPluginMap()*
 TPluginMap(map, repo, plugin, ?remap="")
     MAP is a map command and the map. REPO and PLUGIN are the same as for 
@@ -401,6 +417,23 @@ tplugin#ScanRoots(immediate, roots, args)
     "ROOT/_tplugin.vim".
     Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
     definitions. The file's basenames are repo names.
+
+
+========================================================================
+autoload/tplugin/vcsdo.vim~
+
+                                                    *g:tplugin#vcsdo#script*
+g:tplugin#vcsdo#script         (default: '')
+    The filename of the vcsdo executable.
+
+                                                    *g:tplugin#vcsdo#log_buffer*
+g:tplugin#vcsdo#log_buffer     (default: '__TPluginUpdateLog__')
+    Name of the log buffer.
+    If empty, print log lines as messages.
+
+                                                    *g:tplugin#vcsdo#exclude_roots_rx*
+g:tplugin#vcsdo#exclude_roots_rx (default: '')
+    Don't update root directories matching this |regexp|.
 
 
 
