@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-10-24.
-" @Revision:    1838
+" @Last Change: 2010-10-31.
+" @Revision:    1842
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -172,6 +172,16 @@ command! -nargs=+ TPluginBefore
 " See also |:TPluginBefore|.
 command! -nargs=+ TPluginAfter
             \ call s:AddHook(s:after, [<f-args>][0], join([<f-args>][1:-1]))
+
+
+" :display: TPluginUpdate[!]
+" Update all repos (VCS types only).
+" Requires compiled-in ruby support and http://github.com/tomtom/vcsdo 
+" to be installed. You also have to set |g:tplugin#vcsdo#script|.
+"
+" With the optional !, show which commands would be issued but don't do 
+" anything.
+command! -bang TPluginUpdate call tplugin#vcsdo#Update(!empty('<bang>'), s:roots)
 
 
 let &rtp .= ','. escape(expand('<sfile>:p:h:h'), ',')
