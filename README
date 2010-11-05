@@ -160,6 +160,8 @@ Related work~
 
     - The ruby script I personally use to update local copies of source 
       code repositories: http://github.com/tomtom/vcsdo
+      If your VIM has compiled-in ruby support, you can use the :TPluginUpdate 
+      command to run vcsdo from within VIM.
 
 
 -----------------------------------------------------------------------
