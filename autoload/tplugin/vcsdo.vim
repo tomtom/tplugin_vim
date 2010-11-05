@@ -2,8 +2,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-10-31.
-" @Last Change: 2010-11-01.
-" @Revision:    71
+" @Last Change: 2010-11-02.
+" @Revision:    73
 
 if !has('ruby')
     echoerr 'tplugin#vcsdo requires compiled-in ruby support'
@@ -48,8 +48,7 @@ RUBY
 
 else
 
-
-let g:tplugin#vcsdo#log_buffer = fnamemodify(g:tplugin#vcsdo#log_buffer, ':p')
+let s:log_buffer = fnamemodify(g:tplugin#vcsdo#log_buffer, ':p')
 
 ruby <<RUBY
 class VimLogBuffer
@@ -104,8 +103,10 @@ endf
 
 " :nodoc:
 function! s:ShowLog() "{{{3
-    if bufwinnr(g:tplugin#vcsdo#log_buffer) == -1
-        exec 'split' fnameescape(g:tplugin#vcsdo#log_buffer)
+    if !exists('s:log_buffer')
+        throw "Internal error: no log buffer"
+    elseif bufwinnr(s:log_buffer) == -1
+        exec 'split' fnameescape(s:log_buffer)
         setlocal buftype=nofile
         setlocal bufhidden=hide
         setlocal noswapfile
@@ -114,7 +115,7 @@ function! s:ShowLog() "{{{3
         setlocal modifiable
         setlocal nospell
     else
-        exec 'drop' fnameescape(g:tplugin#vcsdo#log_buffer)
+        exec 'drop' fnameescape(s:log_buffer)
     endif
 endf
 
