@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-10-24.
-" @Revision:    71
+" @Last Change: 2010-11-01.
+" @Revision:    72
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -358,7 +358,7 @@ function! s:MakeHelpTags(roots, master_dir) "{{{3
                     let tags = TPluginFileJoin(doc, 'tags')
                     if !filereadable(tags) || s:ShouldMakeHelptags(doc)
                         " echom "DBG MakeHelpTags" 'helptags '. TPluginFnameEscape(doc)
-                        exec 'helptags '. TPluginFnameEscape(doc)
+                        exec 'silent! helptags '. TPluginFnameEscape(doc)
                     endif
                     if filereadable(tags)
                         call add(tagfiles, tags)
@@ -373,7 +373,7 @@ function! s:MakeHelpTags(roots, master_dir) "{{{3
         let master_dir = a:master_dir
     endif
     if isdirectory(master_dir) && !empty(tagfiles)
-        exec 'helptags '. TPluginFnameEscape(master_dir)
+        exec 'silent! helptags '. TPluginFnameEscape(master_dir)
         let master_tags = TPluginFileJoin(master_dir, 'tags')
         " TLogVAR master_dir, master_tags
         if filereadable(master_tags)
