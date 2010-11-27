@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-11-01.
-" @Revision:    1845
+" @Last Change: 2010-11-05.
+" @Revision:    1849
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -616,6 +616,7 @@ function! s:LoadPlugins(mode, rootrepo, pluginfiles) "{{{3
     endif
     for pluginfile in a:pluginfiles
         let pluginfile = TPluginGetCanonicalFilename(pluginfile)
+        " echom "DBG LoadPlugins" pluginfile
         if pluginfile != '-' && !has_key(done, pluginfile)
             let done[pluginfile] = 1
             if filereadable(pluginfile)
@@ -686,6 +687,7 @@ endf
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
+    " echom "DBG TPluginRequire" root rootrepo plugindir
     if empty(a:000) || a:1 == '*'
         let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
     elseif a:1 == '.'
@@ -693,6 +695,7 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
     else
         let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
     endif
+    " echom "DBG TPluginRequire" string(pluginfiles)
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
     if a:mode || !has('vim_starting')
         call s:AddRepo([rootrepo], s:IsFlatRoot(root))
