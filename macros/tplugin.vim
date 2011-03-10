@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2010-11-05.
-" @Revision:    1849
+" @Last Change: 2011-03-10.
+" @Revision:    1871
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -193,6 +193,7 @@ let s:plugins = {}
 let s:done = {'-': {}}
 let s:before = {}
 let s:after = {}
+let s:dependencies = {}
 let s:ftypes = {}
 let s:functions = {}
 let s:autoloads = {}
@@ -582,6 +583,7 @@ function! s:AddRepo(rootrepos, isflat) "{{{3
     let rootrepos = filter(copy(a:rootrepos), '!has_key(s:done, v:val)')
     if !empty(rootrepos)
         for rootrepo in rootrepos
+            " echom "DBG rootrepo" rootrepo
             let s:done[rootrepo] = {}
             if index(rtp, rootrepo) == -1
                 if !a:isflat
@@ -594,6 +596,15 @@ function! s:AddRepo(rootrepos, isflat) "{{{3
                     let repo_tplugin = rootrepo .'/'. g:tplugin_file .'.vim'
                     if filereadable(repo_tplugin)
                         exec 'source '. TPluginFnameEscape(repo_tplugin)
+                    endif
+                    let repo = fnamemodify(rootrepo, ':t')
+                    if has_key(s:dependencies, repo)
+                        let deps = s:dependencies[repo]
+                        call remove(s:dependencies, repo)
+                        for dependency in deps
+                            " echom "DBG dependency" repo dependency
+                            call TPluginRequire(1, '', dependency)
+                        endfor
                     endif
                 endif
                 let tplugin_repo = fnamemodify(rootrepo, ':h') .'/'. g:tplugin_file .'_'. fnamemodify(rootrepo, ':t') .'.vim'
@@ -687,25 +698,27 @@ endf
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
-    " echom "DBG TPluginRequire" root rootrepo plugindir
-    if empty(a:000) || a:1 == '*'
-        let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
-    elseif a:1 == '.'
-        let pluginfiles = []
-    else
-        let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
-    endif
-    " echom "DBG TPluginRequire" string(pluginfiles)
-    call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
-    if a:mode || !has('vim_starting')
-        call s:AddRepo([rootrepo], s:IsFlatRoot(root))
-        call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
-    else
-        if !has_key(s:reg, rootrepo)
-            let s:reg[rootrepo] = []
+    if !has_key(s:done, rootrepo)
+        " echom "DBG TPluginRequire" root rootrepo plugindir
+        if empty(a:000) || a:1 == '*'
+            let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
+        elseif a:1 == '.'
+            let pluginfiles = []
+        else
+            let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
         endif
-        let s:reg[rootrepo] += pluginfiles
-    end
+        " echom "DBG TPluginRequire" string(pluginfiles)
+        call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
+        if a:mode || !has('vim_starting')
+            call s:AddRepo([rootrepo], s:IsFlatRoot(root))
+            call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
+        else
+            if !has_key(s:reg, rootrepo)
+                let s:reg[rootrepo] = []
+            endif
+            let s:reg[rootrepo] += pluginfiles
+        endif
+    endif
 endf
 
 
@@ -866,6 +879,13 @@ function! TPluginAddRoots(...) "{{{3
     endfor
     if !empty(myroot)
         call s:SetRoot(myroot)
+    endif
+endf
+
+
+function! TPluginDependencies(repo, deps) "{{{3
+    if !has_key(s:dependencies, a:repo)
+        let s:dependencies[a:repo] = a:deps
     endif
 endf
 

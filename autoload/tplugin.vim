@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2010-11-27.
-" @Revision:    87
+" @Last Change: 2011-03-10.
+" @Revision:    133
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -23,9 +23,10 @@ if !exists('g:tplugin#scan')
     "    t ... filetypes
     "    h ... helptags if not available
     "    a ... autoload
+    "    m ... parse vim-addon-manager metadata
     "    _ ... include _tplugin.vim files
     "    all ... all of the above
-    let g:tplugin#scan = 'cfptha_'   "{{{2
+    let g:tplugin#scan = 'cfptham_'   "{{{2
 endif
 
 
@@ -48,10 +49,11 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
         let awhat = g:tplugin#scan
     endif
     if awhat == 'all'
-        let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', '_']
+        let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', 'm', '_']
     else
         let what = split(awhat, '\zs')
     endif
+    " echom "DBG what" string(what)
 
     let aroot = get(a:args, 1, '')
     if empty(aroot)
@@ -98,6 +100,10 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
                 " echom "DBG _tplugin" _tplugin
                 call extend(out, readfile(_tplugin))
             endfor
+        endif
+
+        if index(what, 'm') != -1
+            call s:ProcessAddonInfos(out, root, 'guess')
         endif
 
         if is_tree && index(what, 't') != -1
@@ -165,28 +171,31 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
                 let plugin = matchstr(file, '[\/]\zs[^\/]\{-}\ze\.vim$')
                 " TLogVAR file, repo, plugin
 
-                let is_plugin = !is_tree || strpart(file, pos0) =~ '^[^\/]\+[\/]plugin[\/][^\/]\{-}\.vim$'
+                let file0 = strpart(file, pos0)
 
                 let lines = readfile(file)
 
-                if is_plugin
-                    call add(out, printf('call TPluginRegisterPlugin(%s, %s)',
-                                \ string(repo), string(plugin)))
-                    if !empty(g:tplugin_menu_prefix)
-                        if is_tree
-                            let mrepo = escape(repo, '\.')
-                        else
-                            let mrepo = escape(fnamemodify(root, ':t'), '\.')
+                if !is_tree
+
+                    if file0 =~ '^[^\/]\+[\/]plugin[\/][^\/]\{-}\.vim$'
+                        call add(out, printf('call TPluginRegisterPlugin(%s, %s)',
+                                    \ string(repo), string(plugin)))
+                        if !empty(g:tplugin_menu_prefix)
+                            if is_tree
+                                let mrepo = escape(repo, '\.')
+                            else
+                                let mrepo = escape(fnamemodify(root, ':t'), '\.')
+                            endif
+                            let mplugin = escape(plugin, '\.')
+                            if !has_key(menu_done, repo)
+                                call add(out, 'call TPluginMenu('. string(mrepo .'.Add\ Repository') .', '.
+                                            \ string(repo) .')')
+                                call add(out, 'call TPluginMenu('. string(mrepo .'.-'. mrepo .'-') .', ":")')
+                                let menu_done[repo] = 1
+                            endif
+                            call add(out, 'call TPluginMenu('. string(mrepo .'.'. mplugin) .', '.
+                                        \ string(repo) .', '. string(plugin) .')')
                         endif
-                        let mplugin = escape(plugin, '\.')
-                        if !has_key(menu_done, repo)
-                            call add(out, 'call TPluginMenu('. string(mrepo .'.Add\ Repository') .', '.
-                                        \ string(repo) .')')
-                            call add(out, 'call TPluginMenu('. string(mrepo .'.-'. mrepo .'-') .', ":")')
-                            let menu_done[repo] = 1
-                        endif
-                        call add(out, 'call TPluginMenu('. string(mrepo .'.'. mplugin) .', '.
-                                    \ string(repo) .', '. string(plugin) .')')
                     endif
 
                 endif
@@ -369,6 +378,19 @@ function! s:GetRealRoot(rootname) "{{{3
 endf
 
 
+function! s:ProcessAddonInfos(out, root, master_dir) "{{{3
+    let [is_tree, root] = s:GetRealRoot(a:root)
+    let pos0 = len(root) + 1
+    if is_tree
+        let infofiles = split(glob(TPluginFileJoin(root, '*', '*-addon-info.txt')), '\n')
+        for info in infofiles
+            let repo = fnamemodify(strpart(info, pos0), ':h')
+            call s:ParseAddonInfo(a:out, repo, info)
+        endfor
+    endif
+endf
+
+
 function! s:MakeHelpTags(roots, master_dir) "{{{3
     let tagfiles = []
     for root in a:roots
@@ -491,5 +513,22 @@ function! s:AddAutoloads(out, root, pos0, files) "{{{3
     endfor
 endf
 
+
+function! s:ParseAddonInfo(out, repo, file) "{{{3
+    let src = join(readfile(a:file), ' ')
+    let dict = eval(src)
+    let deps = []
+    for [name, def] in items(get(dict, 'dependencies', {}))
+        let url = get(def, 'url', '')
+        if url == 'git://github.com/tomtom/'. name .'_vim.git'
+            call add(deps, name .'_vim')
+        else
+            call add(deps, name)
+        endif
+    endfor
+    if !empty(deps)
+        call add(a:out, 'call TPluginDependencies('. string(a:repo) .', '. string(deps) .')')
+    endif
+endf
 
 
