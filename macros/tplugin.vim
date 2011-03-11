@@ -321,8 +321,10 @@ endf
 
 
 function! s:AutoloadFunction(fn) "{{{3
+    " echom "DBG AutoloadFunction" a:fn has_key(s:functions, a:fn)
     if stridx(a:fn, '#') != -1
         let prefix = substitute(a:fn, '#[^#]\{-}$', '', '')
+        " echom "DBG AutoloadFunction prefix" prefix has_key(s:autoloads, prefix)
         if has_key(s:autoloads, prefix)
             let def = remove(s:autoloads, prefix)
             let root = def[0]
@@ -330,7 +332,8 @@ function! s:AutoloadFunction(fn) "{{{3
             let [root, rootrepo, plugindir] = s:GetRootPluginDir(root, repo)
             call TPluginRequire(1, root, repo, s:GetPluginPattern(rootrepo))
             call s:RunHooks(s:before, rootrepo, rootrepo .'/autoload/')
-            let autoload_file = 'autoload/'. prefix .'.vim'
+            let autoload_file = 'autoload/'. substitute(prefix, '#', '/', 'g') .'.vim'
+            " echom "DBG AutoloadFunction autoload_file" rootrepo autoload_file
             exec printf('autocmd TPlugin SourceCmd */%s call s:SourceAutoloadFunction(%s, %s)',
                         \ escape(autoload_file, '\ '), string(rootrepo), string(autoload_file))
         endif
@@ -355,6 +358,7 @@ endf
 
 function! s:SourceAutoloadFunction(rootrepo, autoload_file) "{{{3
     let afile = expand('<afile>')
+    " echom "DBG SourceAutoloadFunction" afile
     let afile = TPluginGetCanonicalFilename(strpart(afile, len(afile) - len(a:autoload_file)))
     if afile == a:autoload_file
         let autoload_file_e = TPluginFnameEscape(a:autoload_file)
