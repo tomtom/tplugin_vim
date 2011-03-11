@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-03-10.
-" @Revision:    1871
+" @Last Change: 2011-03-11.
+" @Revision:    1894
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -577,26 +577,28 @@ endf
 
 
 function! s:AddRepo(rootrepos, isflat) "{{{3
-    let rtp = split(&rtp, ',')
-    let idx = index(rtp, s:rtp[0])
-    if idx == -1
-        let idx = 1
-    else
-        let idx += 1
-    endif
     let rootrepos = filter(copy(a:rootrepos), '!has_key(s:done, v:val)')
     if !empty(rootrepos)
         for rootrepo in rootrepos
-            " echom "DBG rootrepo" rootrepo
             let s:done[rootrepo] = {}
+            let rtp = split(&rtp, ',')
+            let idx = index(rtp, s:rtp[0])
+            if idx == -1
+                let idx = 1
+            else
+                let idx += 1
+            endif
+            " echom "DBG AddRepo alter rtp:" string(rtp) idx
             if index(rtp, rootrepo) == -1
                 if !a:isflat
-                    call insert(rtp, rootrepo, idx)
+                    " echom "DBG AddRepo rootrepo:" rootrepo idx
+                    let rtp = insert(rtp, rootrepo, idx)
                     let after_dir = TPluginFileJoin(rootrepo, 'after')
                     if isdirectory(after_dir)
-                        call insert(rtp, after_dir, -1)
+                        let rtp = insert(rtp, after_dir, -1)
                     endif
                     let &rtp = join(rtp, ',')
+                    " echom "DBG AddRepo neuer &rtp:" &rtp
                     let repo_tplugin = rootrepo .'/'. g:tplugin_file .'.vim'
                     if filereadable(repo_tplugin)
                         exec 'source '. TPluginFnameEscape(repo_tplugin)
@@ -702,8 +704,8 @@ endf
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
+    " echom "DBG TPluginRequire" root rootrepo plugindir !has_key(s:done, rootrepo)
     if !has_key(s:done, rootrepo)
-        " echom "DBG TPluginRequire" root rootrepo plugindir
         if empty(a:000) || a:1 == '*'
             let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
         elseif a:1 == '.'
@@ -711,7 +713,7 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
         else
             let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
         endif
-        " echom "DBG TPluginRequire" string(pluginfiles)
+        " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
         call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
         if a:mode || !has('vim_starting')
             call s:AddRepo([rootrepo], s:IsFlatRoot(root))
