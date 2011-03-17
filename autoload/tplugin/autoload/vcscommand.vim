@@ -1,1 +1,1 @@
-TPluginAfter plugin/vcscommand\.vim plugin/*.vim
+TPluginAfter plugin/vcscommand\.vim runtime! plugin/vcs*.vim
