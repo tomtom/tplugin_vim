@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-03-11.
-" @Revision:    1894
+" @Last Change: 2011-03-17.
+" @Revision:    1905
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -655,16 +655,6 @@ function! s:LoadFile(rootrepo, filename) "{{{3
     " exec 'runtime! after/'. TPluginFnameEscape(strpart(a:filename, pos0))
     exec 'runtime! '. TPluginFnameEscape(strpart(a:filename, pos0))
     call s:RunHooks(s:after, a:rootrepo, a:filename)
-endf
-
-
-function! s:GetVimEnterAutocommands() "{{{3
-    redir => autocmds
-    silent autocmd VimEnter
-    redir END
-    let aus = split(autocmds, '\n')
-    call filter(aus, 'v:val[0] == " "')
-    return aus
 endf
 
 

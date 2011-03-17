@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2011-03-10.
-" @Revision:    133
+" @Last Change: 2011-03-17.
+" @Revision:    190
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -148,6 +148,7 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
         endif
         
         let s:scan_repo_done = {}
+        let s:vimenter_augroups_done = {}
         try
             let fidx = 0
             let menu_done = {}
@@ -249,12 +250,14 @@ let s:parameters = {}
 
 
 function! s:ScanSource(file, repo, plugin, what, lines) "{{{3
+    let filebase = matchstr(a:file, '[\\/][^\\/]\+[\\/]\(plugin\|ftplugin\|syntax\|indent\|autoload\)[\\/]')
     let text = join(a:lines, "\n")
     let text = substitute(text, '\n\s*\\', '', 'g')
     let lines = split(text, '\n')
     let rx = join(filter(map(copy(a:what), 'get(get(s:scanner, v:val, {}), "rx", "")'), '!empty(v:val)'), '\|')
     let out = []
     let tail = []
+    let augroup0 = ''
     let include = 0
     for line in lines
         if include
@@ -318,6 +321,21 @@ function! s:ScanSource(file, repo, plugin, what, lines) "{{{3
                     call add(tail, 'endif')
                 endif
                 let include = 1
+            elseif line =~# '^\s*:\?aug\%[roup]\s\+\(end\|END\)\s*$'
+                let augroup0 = ''
+            elseif line =~# '^\s*:\?aug\%[roup]\s\+\(\k\+\)\s*$'
+                let augroup0 = matchstr(line, '^\s*:\?aug\%[roup]\s\+\zs\k\+\ze\s*$')
+            elseif line =~# '^\s*:\?au\%[tocmd]\s\+\(\k\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>'
+                let ml = matchlist(line, '^\s*:\?au\%[tocmd]\s\+\(\k\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>\(,\S\+\)\?\s\+\(\\\s\|\S\)\+\s\+\(nested\s\+\)\?\(.\+\)$')
+                let augroup = get(ml, 1, '')
+                if empty(augroup)
+                    let augroup = augroup0
+                endif
+                if !empty(augroup) && !empty(filebase) && !has_key(s:vimenter_augroups_done, augroup)
+                    let cmd = 'TPluginAfter \V'. escape(filebase, '\') .' do '. augroup .' VimEnter'
+                    call add(out, cmd)
+                    let s:vimenter_augroups_done[augroup] = 1
+                endif
             elseif line =~ rx
                 let out_line = s:ScanLine(a:file, a:repo, a:plugin, a:what, line)
                 if !empty(out_line)
