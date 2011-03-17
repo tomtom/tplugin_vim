@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2011-03-17.
-" @Revision:    190
+" @Revision:    194
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -323,10 +323,10 @@ function! s:ScanSource(file, repo, plugin, what, lines) "{{{3
                 let include = 1
             elseif line =~# '^\s*:\?aug\%[roup]\s\+\(end\|END\)\s*$'
                 let augroup0 = ''
-            elseif line =~# '^\s*:\?aug\%[roup]\s\+\(\k\+\)\s*$'
-                let augroup0 = matchstr(line, '^\s*:\?aug\%[roup]\s\+\zs\k\+\ze\s*$')
-            elseif line =~# '^\s*:\?au\%[tocmd]\s\+\(\k\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>'
-                let ml = matchlist(line, '^\s*:\?au\%[tocmd]\s\+\(\k\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>\(,\S\+\)\?\s\+\(\\\s\|\S\)\+\s\+\(nested\s\+\)\?\(.\+\)$')
+            elseif line =~# '^\s*:\?aug\%[roup]\s\+\(\S\+\)\s*$'
+                let augroup0 = matchstr(line, '^\s*:\?aug\%[roup]\s\+\zs\S\+\ze\s*$')
+            elseif line =~# '^\s*:\?au\%[tocmd]\s\+\(\S\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>'
+                let ml = matchlist(line, '^\s*:\?au\%[tocmd]\s\+\(\S\+\s\+\)\?\([^,]\+,\)\{-}VimEnter\>\(,\S\+\)\?\s\+\(\\\s\|\S\)\+\s\+\(nested\s\+\)\?\(.\+\)$')
                 let augroup = get(ml, 1, '')
                 if empty(augroup)
                     let augroup = augroup0
