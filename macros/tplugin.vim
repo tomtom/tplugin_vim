@@ -4,14 +4,14 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-03-17.
-" @Revision:    1905
+" @Last Change: 2011-03-22.
+" @Revision:    1909
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
     finish
 endif
-let loaded_tplugin = 11
+let loaded_tplugin = 12
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -563,7 +563,7 @@ function! s:SetRoot(dir) "{{{3
             try
                 exec 'source '. TPluginFnameEscape(autoload)
             catch /^TPluginScan:Outdated$/
-                echom "Rescanning roots: Please be patient"
+                call inputdialog("Rescanning roots: Please be patient")
                 silent call tplugin#ScanRoots(1, s:roots, [])
             catch
                 echohl Error
