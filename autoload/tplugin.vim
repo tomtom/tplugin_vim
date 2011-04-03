@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2011-03-17.
-" @Revision:    194
+" @Last Change: 2011-03-23.
+" @Revision:    195
 
 
 if !exists('g:tplugin#autoload_exclude')

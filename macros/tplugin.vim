@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-03-22.
-" @Revision:    1909
+" @Last Change: 2011-04-03.
+" @Revision:    1918
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -277,6 +277,7 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
         let pluginfile = s:GetPluginFile(root, file[0], file[1])
         call s:RemoveAutoloads(pluginfile, [cmd])
     endif
+    " echom "DBG s:Autoload" string(file)
     if len(file) >= 1 && len(file) <= 2
         call call('TPluginRequire', [1, root] + file)
     else
@@ -627,15 +628,15 @@ function! s:LoadPlugins(mode, rootrepo, pluginfiles) "{{{3
     if empty(a:pluginfiles)
         return
     endif
-    let done = s:done[a:rootrepo]
-    if has_key(done, '*')
+    let done_repo = s:done[a:rootrepo]
+    if has_key(done_repo, '*')
         return
     endif
     for pluginfile in a:pluginfiles
         let pluginfile = TPluginGetCanonicalFilename(pluginfile)
         " echom "DBG LoadPlugins" pluginfile
-        if pluginfile != '-' && !has_key(done, pluginfile)
-            let done[pluginfile] = 1
+        if pluginfile != '-' && !has_key(done_repo, pluginfile)
+            let done_repo[pluginfile] = 1
             if filereadable(pluginfile)
                 call s:LoadFile(a:rootrepo, pluginfile)
                 if a:mode == 2
@@ -695,25 +696,23 @@ endf
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
     " echom "DBG TPluginRequire" root rootrepo plugindir !has_key(s:done, rootrepo)
-    if !has_key(s:done, rootrepo)
-        if empty(a:000) || a:1 == '*'
-            let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
-        elseif a:1 == '.'
-            let pluginfiles = []
-        else
-            let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
+    if empty(a:000) || a:1 == '*'
+        let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
+    elseif a:1 == '.'
+        let pluginfiles = []
+    else
+        let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
+    endif
+    " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
+    call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
+    if a:mode || !has('vim_starting')
+        call s:AddRepo([rootrepo], s:IsFlatRoot(root))
+        call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
+    else
+        if !has_key(s:reg, rootrepo)
+            let s:reg[rootrepo] = []
         endif
-        " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
-        call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
-        if a:mode || !has('vim_starting')
-            call s:AddRepo([rootrepo], s:IsFlatRoot(root))
-            call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
-        else
-            if !has_key(s:reg, rootrepo)
-                let s:reg[rootrepo] = []
-            endif
-            let s:reg[rootrepo] += pluginfiles
-        endif
+        let s:reg[rootrepo] += pluginfiles
     endif
 endf
 
