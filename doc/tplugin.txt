@@ -201,6 +201,7 @@ Contents~
         TPluginFunction .................... |TPluginFunction()|
         TPluginCommand ..................... |TPluginCommand()|
         TPluginAddRoots .................... |TPluginAddRoots()|
+        TPluginDependencies ................ |TPluginDependencies()|
         g:tplugin#autoload_exclude ......... |g:tplugin#autoload_exclude|
         g:tplugin#scan ..................... |g:tplugin#scan|
         tplugin#ScanRoots .................. |tplugin#ScanRoots()|
@@ -391,6 +392,9 @@ TPluginCommand(COMMAND, REPOSITORY, [PLUGIN])
 TPluginAddRoots(?subdir="bundle")
     Add all directories named SUBDIR as roots.
 
+                                                    *TPluginDependencies()*
+TPluginDependencies(repo, deps)
+
 
 ========================================================================
 autoload/tplugin.vim~
@@ -401,7 +405,7 @@ g:tplugin#autoload_exclude     (default: ['tplugin'])
     |:TPluginScan|.
 
                                                     *g:tplugin#scan*
-g:tplugin#scan                 (default: 'cfptha_')
+g:tplugin#scan                 (default: 'cfptham_')
     The default value for |:TPluginScan|. A set of identifiers 
     determining the information being collected:
        c ... commands
@@ -410,6 +414,7 @@ g:tplugin#scan                 (default: 'cfptha_')
        t ... filetypes
        h ... helptags if not available
        a ... autoload
+       m ... parse vim-addon-manager metadata
        _ ... include _tplugin.vim files
        all ... all of the above
 
