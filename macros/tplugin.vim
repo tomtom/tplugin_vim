@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-04-03.
-" @Revision:    1918
+" @Last Change: 2011-04-17.
+" @Revision:    1925
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -753,7 +753,8 @@ endf
 
 function! s:TPluginComplete(ArgLead, CmdLine, CursorPos) "{{{3
     let repo = matchstr(a:CmdLine, '\<TPlugin\s\+\zs\(\S\+\)\ze\s')
-    let rv = []
+    let rv = keys(s:repos)
+    call filter(rv, 'v:val =~ a:ArgLead')
     let root = s:GetRoot()
     if empty(repo)
         if root =~ '[\\/]\*$'
@@ -772,6 +773,7 @@ function! s:TPluginComplete(ArgLead, CmdLine, CursorPos) "{{{3
         call filter(files, 'stridx(v:val, a:ArgLead) != -1')
     endif
     call filter(files, 'v:val !~ ''\V'. g:tplugin_file .'\(_\w\+\)\?\(\.vim\)\?\$''')
+    call filter(files, 'index(rv, v:val) == -1')
     let rv += files
     return rv
 endf
