@@ -1,0 +1,17 @@
+version: "0.12"
+  - Run helptags with silent!
+  - vcsdo: Finalize the name of the log buffer as script-local variable
+  - Experimental support for <VIMPLUGIN> tags used in vx* plugins.
+  - .gitignore
+  - Experimental support for parsing *-addon-info.txt and simpler dependency management
+  - s:AutoloadFunction(): Properly support autoload funcs in subdirectories
+  - &rtp wasn't properly updated in certain situations
+  - Experimental: Scan sources for VimEnter autocommands
+  - autoload/tplugin/vcscommand: Adapt to new arguments
+  - FIX: scanning of autocmds: Don't use \k
+  - autoload/tplugin/fugitive: Don't call #fugitive_utility#VimEnter
+  - SetRoot(): Use inputdialog() to display "Rescanning roots: Please be patient" message
+  - TPluginRequire: Remove check for s:done[rootrepo] (over-optimization)
+  - s:TPluginComplete(): show all known repos as completion candidates
+  MD5 checksum: 8ff9f5f7c97d3e306bb543a60cf16271
+
