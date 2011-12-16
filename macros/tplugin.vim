@@ -4,14 +4,14 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-04-17.
-" @Revision:    1925
+" @Last Change: 2011-12-16.
+" @Revision:    1926
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
     finish
 endif
-let loaded_tplugin = 12
+let loaded_tplugin = 13
 
 let s:save_cpo = &cpo
 set cpo&vim
