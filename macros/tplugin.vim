@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-12-16.
-" @Revision:    1926
+" @Last Change: 2011-12-17.
+" @Revision:    1933
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -542,6 +542,8 @@ function! TPluginGetRootDirOnDisk(dir) "{{{3
 endf
 
 
+let s:rescanned_roots = 0
+
 function! s:SetRoot(dir) "{{{3
     " echom "DBG SetRoot" a:dir
     let root = TPluginGetCanonicalFilename(fnamemodify(a:dir, ':p'))
@@ -564,8 +566,14 @@ function! s:SetRoot(dir) "{{{3
             try
                 exec 'source '. TPluginFnameEscape(autoload)
             catch /^TPluginScan:Outdated$/
-                call inputdialog("Rescanning roots: Please be patient")
-                silent call tplugin#ScanRoots(1, s:roots, [])
+                if !s:rescanned_roots
+                    autocmd VimEnter *
+                                \ echohl WarningMsg | 
+                                \ echom "TPlugin: Outdated _tplugin.vim files ... Rescanning roots: Please be patient" |
+                                \ echohl NONE
+                    autocmd VimEnter * call tplugin#ScanRoots(1, s:roots, [])
+                    let s:rescanned_roots = 1
+                endif
             catch
                 echohl Error
                 echom v:exception
