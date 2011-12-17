@@ -15,3 +15,7 @@ version: "0.12"
   - s:TPluginComplete(): show all known repos as completion candidates
   MD5 checksum: 8ff9f5f7c97d3e306bb543a60cf16271
 
+version: "0.13"
+  - Fix message when rescanning roots due to outdated meta files; rescan only once
+  MD5 checksum: 395629f472fea537b25cfb12ae01f829
+
