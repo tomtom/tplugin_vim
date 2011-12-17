@@ -19,3 +19,7 @@ version: "0.13"
   - Fix message when rescanning roots due to outdated meta files; rescan only once
   MD5 checksum: 395629f472fea537b25cfb12ae01f829
 
+version: "0.13"
+  - Fix message when rescanning roots due to outdated meta files; rescan only once
+  MD5 checksum: 395629f472fea537b25cfb12ae01f829
+
