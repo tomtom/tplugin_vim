@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-12-17.
-" @Revision:    1933
+" @Last Change: 2011-12-25.
+" @Revision:    1936
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -84,10 +84,13 @@ command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
             \ call TPluginRequire(!empty("<bang>"), '', <f-args>)
 
 
-" :display: :TPluginRoot DIRECTORY
+" :display: :TPluginRoot[!] DIRECTORY
 " Define the root directory for the following |:TPlugin| commands.
 " Read autoload information if available (see |g:tplugin_autoload| and 
 " |:TPluginScan|).
+"
+" With the optional <bang>, don't register commands, functions etc. when 
+" scanning the root with |:TPluginScan|.
 "
 " If DIRECTORY ends with "*", it doesn't refer to a directory hierarchy 
 " à la vimfiles but to a single "flat" directory.
@@ -103,8 +106,8 @@ command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
 "   TPluginRoot ~/src/git_repos
 "   " A directory with experimental plugins
 "   TPluginRoot ~/vimfiles/experimental_plugins/*
-command! -nargs=+ -complete=dir TPluginRoot
-            \ call s:SetRoot(<q-args>)
+command! -bang -nargs=+ -complete=dir TPluginRoot
+            \ call s:SetRoot(<q-args>, !empty("<bang>"))
 
 
 " :display: :TPluginScan[!] [WHAT] [ROOT]
@@ -143,7 +146,7 @@ command! -nargs=+ -complete=dir TPluginRoot
 "   TPluginRoot dir2
 "   TPluginScan
 command! -bang -nargs=* TPluginScan
-            \ call tplugin#ScanRoots(!empty("<bang>"), s:roots, [<f-args>])
+            \ call tplugin#ScanRoots(!empty("<bang>"), s:roots, s:shallow_roots, [<f-args>])
 
 
 " :display: :TPluginBefore FILE_RX COMMAND
@@ -186,6 +189,7 @@ command! -bang TPluginUpdate call tplugin#vcsdo#Update(!empty('<bang>'), s:roots
 
 let &rtp .= ','. escape(expand('<sfile>:p:h:h'), ',')
 let s:roots = []
+let s:shallow_roots = []
 let s:rtp = split(&rtp, ',')
 let s:reg = {}
 let s:repos = {}
@@ -544,8 +548,10 @@ endf
 
 let s:rescanned_roots = 0
 
-function! s:SetRoot(dir) "{{{3
+" function! s:SetRoot(dir, ?shallow=0)
+function! s:SetRoot(dir, ...) "{{{3
     " echom "DBG SetRoot" a:dir
+    let shallow = a:0 >= 1 ? a:1 : 0
     let root = TPluginGetCanonicalFilename(fnamemodify(a:dir, ':p'))
     let idx = index(s:roots, root)
     if idx > 0
@@ -553,6 +559,9 @@ function! s:SetRoot(dir) "{{{3
     endif
     if idx != 0
         call insert(s:roots, root)
+    endif
+    if shallow
+        call insert(s:shallow_roots, root)
     endif
     " Don't reload the file. Old autoload definitions won't be 
     " overwritten anyway.
@@ -571,7 +580,7 @@ function! s:SetRoot(dir) "{{{3
                                 \ echohl WarningMsg | 
                                 \ echom "TPlugin: Outdated _tplugin.vim files ... Rescanning roots: Please be patient" |
                                 \ echohl NONE
-                    autocmd VimEnter * call tplugin#ScanRoots(1, s:roots, [])
+                    autocmd VimEnter * call tplugin#ScanRoots(1, s:roots, s:shallow_roots, [])
                     let s:rescanned_roots = 1
                 endif
             catch

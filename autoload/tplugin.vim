@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2011-12-25.
-" @Revision:    196
+" @Revision:    203
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -30,11 +30,16 @@ if !exists('g:tplugin#scan')
 endif
 
 
+if !exists('g:tplugin#shallow_scan')
+    let g:tplugin#shallow_scan = 'hm'   "{{{2
+endif
+
+
 " Write autoload information for each root directory to 
 " "ROOT/_tplugin.vim".
 " Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
 " definitions. The file's basenames are repo names.
-function! tplugin#ScanRoots(immediate, roots, args) "{{{3
+function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
     let prefabs = {}
     for prefab in split(globpath(&rtp, 'autoload/tplugin/autoload/*.vim'), '\n')
         let prefab_key = fnamemodify(prefab, ':t:r')
@@ -44,15 +49,7 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
         endif
     endfor
 
-    let awhat = get(a:args, 0, '')
-    if empty(awhat)
-        let awhat = g:tplugin#scan
-    endif
-    if awhat == 'all'
-        let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', 'm', '_']
-    else
-        let what = split(awhat, '\zs')
-    endif
+    let awhat0 = get(a:args, 0, '')
     " echom "DBG what" string(what)
 
     let aroot = get(a:args, 1, '')
@@ -64,11 +61,28 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
 
     " TLogVAR what, a:roots
 
-    if index(what, 'h') != -1
-        call s:MakeHelpTags(roots, 'guess')
-    endif
+    let helptags_roots = []
 
     for root in roots
+
+        if empty(awhat0)
+            if index(a:shallow_roots, root) != -1
+                let awhat = g:tplugin#shallow_scan
+            else
+                let awhat = g:tplugin#scan
+            endif
+        else
+            let awhat = awhat0
+        endif
+        if awhat == 'all'
+            let what = ['c', 'f', 'a', 'p', 'h', 't', 'l', 'm', '_']
+        else
+            let what = split(awhat, '\zs')
+        endif
+    
+        if index(what, 'h') != -1
+            call add(helptags_roots, root)
+        endif
 
         " TLogVAR root
         let [is_tree, root] = s:GetRealRoot(root)
@@ -229,6 +243,10 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
         endif
 
     endfor
+
+    if !empty(helptags_roots)
+        call s:MakeHelpTags(helptags_roots, 'guess')
+    endif
 endf
 
 
