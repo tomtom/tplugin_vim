@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2011-03-23.
-" @Revision:    195
+" @Last Change: 2011-12-25.
+" @Revision:    196
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -176,7 +176,7 @@ function! tplugin#ScanRoots(immediate, roots, args) "{{{3
 
                 let lines = readfile(file)
 
-                if !is_tree
+                if is_tree
 
                     if file0 =~ '^[^\/]\+[\/]plugin[\/][^\/]\{-}\.vim$'
                         call add(out, printf('call TPluginRegisterPlugin(%s, %s)',
