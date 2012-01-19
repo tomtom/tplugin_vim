@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2011-12-25.
-" @Revision:    203
+" @Last Change: 2012-01-18.
+" @Revision:    207
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -80,8 +80,10 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
             let what = split(awhat, '\zs')
         endif
     
-        if index(what, 'h') != -1
+        let whati = index(what, 'h')
+        if whati != -1
             call add(helptags_roots, root)
+            call remove(what, whati)
         endif
 
         " TLogVAR root
@@ -109,18 +111,24 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
             echo 'TPluginscan: Scanning '. root .' ...'
         endif
 
-        if index(what, '_') != -1
+        let whati = index(what, '_')
+        if whati != -1
             for _tplugin in _tplugins
                 " echom "DBG _tplugin" _tplugin
                 call extend(out, readfile(_tplugin))
             endfor
+            call remove(what, whati)
         endif
 
-        if index(what, 'm') != -1
+        let whati = index(what, 'm')
+        if whati != -1
             call s:ProcessAddonInfos(out, root, 'guess')
+            call remove(what, whati)
         endif
 
-        if is_tree && index(what, 't') != -1
+        let whati = index(what, 't')
+        if is_tree && whati != -1
+            call remove(what, whati)
 
             for ftdetect in filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]ftdetect[\/][^\/]\{-}\.vim$''')
                 call add(out, 'augroup filetypedetect')
@@ -154,13 +162,15 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
                 call add(out, 'call TPluginFiletype('. string(ft) .', '. string(repo_names) .')')
             endfor
 
+            let whati = index(what, 'a')
             if index(what, 'a') != -1
                 let autoloads = filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]autoload[\/].\{-}\.vim$''')
                 call s:AddAutoloads(out, root, pos0, autoloads)
+                call remove(what, whati)
             endif
 
         endif
-        
+
         let s:scan_repo_done = {}
         let s:vimenter_augroups_done = {}
         try
@@ -215,14 +225,16 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
 
                 endif
 
-                let autoload = s:ScanSource(file, repo, plugin, what, lines)
-                " TLogVAR file, repo, plugin
-                " TLogVAR keys(prefabs)
-                if has_key(prefabs, repo)
-                    let autoload += readfile(prefabs[repo])
-                endif
-                if !empty(autoload)
-                    let out += autoload
+                if !empty(what)
+                    let autoload = s:ScanSource(file, repo, plugin, what, lines)
+                    " TLogVAR file, repo, plugin
+                    " TLogVAR keys(prefabs)
+                    if has_key(prefabs, repo)
+                        let autoload += readfile(prefabs[repo])
+                    endif
+                    if !empty(autoload)
+                        let out += autoload
+                    endif
                 endif
             endfor
         finally
