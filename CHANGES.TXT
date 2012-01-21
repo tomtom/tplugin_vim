@@ -23,3 +23,9 @@ version: "0.13"
   - Fix message when rescanning roots due to outdated meta files; rescan only once
   MD5 checksum: 395629f472fea537b25cfb12ae01f829
 
+version: "0.14"
+  - TPluginRegisterPlugin works again
+  - TPluginRoot!: With bang, mark this root for shallow scans
+  - Speed up scanning of "shallow roots"
+  MD5 checksum: fba3e4a4fad872e074f76dd3988c2cb3
+
