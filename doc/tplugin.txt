@@ -191,6 +191,7 @@ Contents~
         g:tplugin#autoload_exclude ......... |g:tplugin#autoload_exclude|
         g:tplugin#scan ..................... |g:tplugin#scan|
         g:tplugin#shallow_scan ............. |g:tplugin#shallow_scan|
+        g:tplugin#show_helptags_errors ..... |g:tplugin#show_helptags_errors|
         tplugin#ScanRoots .................. |tplugin#ScanRoots()|
         g:tplugin#vcsdo#script ............. |g:tplugin#vcsdo#script|
         g:tplugin#vcsdo#log_buffer ......... |g:tplugin#vcsdo#log_buffer|
@@ -410,6 +411,10 @@ g:tplugin#scan                 (default: 'cfptham_')
 
                                                     *g:tplugin#shallow_scan*
 g:tplugin#shallow_scan         (default: 'hm')
+
+                                                    *g:tplugin#show_helptags_errors*
+g:tplugin#show_helptags_errors (default: 1)
+    If true, show errors when running :helptags.
 
                                                     *tplugin#ScanRoots()*
 tplugin#ScanRoots(immediate, roots, shallow_roots, args)

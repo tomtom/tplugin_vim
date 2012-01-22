@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2012-01-18.
-" @Revision:    207
+" @Last Change: 2012-01-22.
+" @Revision:    223
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -32,6 +32,12 @@ endif
 
 if !exists('g:tplugin#shallow_scan')
     let g:tplugin#shallow_scan = 'hm'   "{{{2
+endif
+
+
+if !exists('g:tplugin#show_helptags_errors')
+    " If true, show errors when running :helptags.
+    let g:tplugin#show_helptags_errors = 1   "{{{2
 endif
 
 
@@ -452,7 +458,12 @@ function! s:MakeHelpTags(roots, master_dir) "{{{3
                     let tags = TPluginFileJoin(doc, 'tags')
                     if !filereadable(tags) || s:ShouldMakeHelptags(doc)
                         " echom "DBG MakeHelpTags" 'helptags '. TPluginFnameEscape(doc)
-                        exec 'silent! helptags '. TPluginFnameEscape(doc)
+                        let cmd = 'silent'
+                        let cmd .= g:tplugin#show_helptags_errors ? ' ' : '! '
+                        let cmd .= 'helptags '
+                        let cmd .= TPluginFnameEscape(doc)
+                        " TLogVAR cmd
+                        exec cmd
                     endif
                     if filereadable(tags)
                         call add(tagfiles, tags)
