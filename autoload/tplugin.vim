@@ -446,7 +446,9 @@ function! s:MakeHelpTags(roots, master_dir) "{{{3
         if is_tree
             let helpdirs = split(glob(TPluginFileJoin(root, '*', 'doc')), '\n')
             for doc in helpdirs
-                if isdirectory(doc)
+                " TLogVAR doc
+                " TLogDBG empty(glob(TPluginFileJoin(doc, '*.*')))
+                if isdirectory(doc) && !empty(glob(TPluginFileJoin(doc, '*.*')))
                     let tags = TPluginFileJoin(doc, 'tags')
                     if !filereadable(tags) || s:ShouldMakeHelptags(doc)
                         " echom "DBG MakeHelpTags" 'helptags '. TPluginFnameEscape(doc)
