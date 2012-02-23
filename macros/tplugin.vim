@@ -904,6 +904,18 @@ function! TPluginDependencies(repo, deps) "{{{3
 endf
 
 
+function! TPluginVimEnter(group) "{{{3
+    redir => aus
+    exec 'silent au' a:group 'VimEnter'
+    redir END
+    let au = split(aus, '\n')
+    " TLogVAR a:group, len(au)
+    if len(au) > 1
+        exec 'doautocmd' a:group 'VimEnter'
+    endif
+endf
+
+
 if index(['.vim', 'vimfiles'], expand("<sfile>:p:h:h:t")) != -1
     call TPluginAddRoots()
 else

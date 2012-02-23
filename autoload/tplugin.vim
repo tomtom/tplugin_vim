@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2012-01-22.
-" @Revision:    223
+" @Last Change: 2012-02-23.
+" @Revision:    226
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -368,7 +368,7 @@ function! s:ScanSource(file, repo, plugin, what, lines) "{{{3
                     let augroup = augroup0
                 endif
                 if !empty(augroup) && !empty(filebase) && !has_key(s:vimenter_augroups_done, augroup)
-                    let cmd = 'TPluginAfter \V'. escape(filebase, '\') .' do '. augroup .' VimEnter'
+                    let cmd = 'TPluginAfter \V'. escape(filebase, '\') .' call TPluginVimEnter("'. augroup .'")'
                     call add(out, cmd)
                     let s:vimenter_augroups_done[augroup] = 1
                 endif
