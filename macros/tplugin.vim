@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2011-12-25.
-" @Revision:    1937
+" @Last Change: 2012-02-23.
+" @Revision:    1950
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -935,89 +935,3 @@ augroup END
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-finish
-
-0.1
-- Initial release
-
-0.2
-- Improved command-line completion for :TPlugin
-- Experimental autoload for commands and functions (à la AsNeeded)
-- The after path is inserted at the second to last position
-- When autoload is enabled and g:tplugin_menu_prefix is not empty, build 
-a menu with available plugins (NOTE: this is disabled by default)
-
-0.3
-- Build helptags during :TPluginScan (i.e. support for helptags requires 
-autoload to be enabled)
-- Call delcommand before autoloading a plugin because of an unknown 
-command
-- TPluginScan: Take a root directory as the second optional argument
-- The autoload file was renamed to ROOT/tplugin.vim
-- When adding a repository to &rtp, ROOT/tplugin_REPO.vim is loaded
-- TPluginBefore, TPluginAfter commands to define inter-repo dependencies
-- Support for autoloading <plug> maps
-- Support for autoloading filetypes
-
-0.4
-- Moved autoload functions to macros/tplugin.vim -- users have to rescan 
-their repos.
-- Fixed concatenation of filetype-related files
-- :TPluginDisable command
-- Replaced :TPluginMap with a function TPluginMap()
-
-0.5
-- Support for ftdetect
-- Per repo metadata (ROOT/REPO/tplugin.vim)
-- FIX: s:ScanRoots(): Remove empty entries from filelist
-- Support for ftplugins in directories and named {&FT}_{NAME}.vim
-- FIX: Filetype-related problems
-- Relaxed the rx for functions
-- FIX: Don't load any plugins when autoloading an "autoload function"
-- :TPlugin accepts "-" as argument, which means load "NO PLUGIN".
-- Speed up :TPluginScan (s:ScanRoots(): run glob() only once, filter file 
-contents before passing it to s:ScanSource())
-- :TPluginScan: don't use full filenames as arguments for 
-TPluginFiletype()
-- g:tplugin_autoload_exclude: Exclude repos from autoloading
-- Removed :TPluginDisable
-- TPluginMap(): Don't map keys if the key already is mapped (via 
-maparg())
-- If g:tplugin_autoload == 2, run |:TPluginScan| after updating tplugin.
-- FIX: Don't add autoload files to the menu.
-- FIX: s:ScanLine: Don't create duplicate autoload commands.
-
-0.6
-- CHANGE: The root specific autoload files are now called '_tplugin.vim'
-- Provide a poor-man implementation of fnameescape() for users of older 
-versions of vim.
-- If the root name ends with '*', the root is no directory tree but a 
-single directory (actually a plugin repo)
-- s:TPluginComplete(): Hide tplugin autoload files.
-
-0.7
-- TPluginScan: try to maintain information about command-line completion 
-(this won't work if a custom script-local completion function is used)
-
-0.8
-- Delete commands only when they were defined without a bang; make sure 
-all commands in a file defined without a bang are deleted
-- g:tplugin_scan defaults to 'cfpt'
-- Don't register each autoload function but deduce the repo/plugin from 
-the prefix.
-- g:tplugin_scan defaults to 'cfpta'
-- TPluginCommand and TPluginFunction are functions. Removed the commands 
-with the same name.
-- #TPluginInclude tag
-
-0.9
-- Renamed #TPluginInclude to @TPluginInclude
-- Added support for @TPluginMap, @TPluginBefore, @TPluginAfter annotations
-- TPluginMap() restores the proper mode
-- Load after/autoload/* files
-
-0.10
-- Make helptags of repositories that weren't yet loaded available to the 
-user.
-- Renamed variables: g:tplugin#autoload_exclude, g:tplugin#scan
-
