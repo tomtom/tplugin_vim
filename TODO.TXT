@@ -1,0 +1,4 @@
+
+    #C5 :vim :tplugin TPluginMap: Remap doesn't restore the original mode and fires the map in normal mode
+    #C5 :vim :tplugin When triggering an autoload of a command by the command-complete function and thereby loading the file where the command was defined & thereby redefining that command, you get an error.
+
