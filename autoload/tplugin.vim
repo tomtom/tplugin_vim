@@ -131,6 +131,8 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
             call s:ProcessAddonInfos(out, root, 'guess')
             call remove(what, whati)
         endif
+            
+        let s:repos_registry = {}
 
         let whati = index(what, 't')
         if is_tree && whati != -1
@@ -157,14 +159,17 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
                 if !has_key(ftd, ft)
                     let ftd[ft] = {}
                 endif
-                let repo = matchstr(ftfile, '^.\{-}\%'. (len(root) + 2) .'c[^\/]\+')
+                let repo0 = matchstr(ftfile, '^.\{-}\%'. (len(root) + 2) .'c[^\/]\+')
+                let repo = strpart(repo0, pos0)
                 " TLogVAR ftfile, repo
                 let ftd[ft][repo] = 1
+                call s:PrintRegisterRepo(out, repo)
             endfor
 
             for [ft, repos] in items(ftd)
                 " TLogVAR ft, repos
-                let repo_names = map(keys(repos), 'strpart(v:val, pos0)')
+                " let repo_names = map(keys(repos), 'strpart(v:val, pos0)')
+                let repo_names = keys(repos)
                 call add(out, 'call TPluginFiletype('. string(ft) .', '. string(repo_names) .')')
             endfor
 
@@ -182,7 +187,6 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
         try
             let fidx = 0
             let menu_done = {}
-            let repos_done = {}
             for file in filelist
                 " TLogVAR file
                 if progressbar
@@ -195,10 +199,7 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
                 else
                     let repo = '-'
                 endif
-                if !has_key(repos_done, repo)
-                    call add(out, printf('call TPluginRegisterRepo(%s)', string(repo)))
-                    let repos_done[repo] = 1
-                endif
+                call s:PrintRegisterRepo(out, repo)
                 let plugin = matchstr(file, '[\/]\zs[^\/]\{-}\ze\.vim$')
                 " TLogVAR file, repo, plugin
 
@@ -245,11 +246,12 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
             endfor
         finally
             unlet s:scan_repo_done
+            unlet s:repos_registry
             if progressbar
                 call tlib#progressbar#Restore()
             else
                 redraw
-                echo
+                " echo
             endif
         endtry
 
@@ -264,6 +266,15 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
 
     if !empty(helptags_roots)
         call s:MakeHelpTags(helptags_roots, 'guess')
+    endif
+    echom "TPlugin: Finished scan"
+endf
+
+
+function! s:PrintRegisterRepo(out, repo) "{{{3
+    if !has_key(s:repos_registry, a:repo)
+        call add(a:out, printf('call TPluginRegisterRepo(%s)', string(a:repo)))
+        let s:repos_registry[a:repo] = 1
     endif
 endf
 
