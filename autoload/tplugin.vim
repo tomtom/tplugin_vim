@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2012-02-23.
-" @Revision:    226
+" @Last Change: 2012-02-24.
+" @Revision:    237
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -112,9 +112,9 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
 
         let progressbar = exists('g:loaded_tlib')
         if progressbar
-            call tlib#progressbar#Init(len(filelist), 'TPluginscan: Scanning '. escape(root, '%') .' %s', 20)
+            call tlib#progressbar#Init(len(filelist), 'TPlugin: Scanning '. escape(root, '%') .' %s', 20)
         else
-            echo 'TPluginscan: Scanning '. root .' ...'
+            echo 'TPlugin: Scanning '. root .' ...'
         endif
 
         let whati = index(what, '_')
