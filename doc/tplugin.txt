@@ -188,6 +188,7 @@ Contents~
         TPluginCommand ..................... |TPluginCommand()|
         TPluginAddRoots .................... |TPluginAddRoots()|
         TPluginDependencies ................ |TPluginDependencies()|
+        TPluginVimEnter .................... |TPluginVimEnter()|
         g:tplugin#autoload_exclude ......... |g:tplugin#autoload_exclude|
         g:tplugin#scan ..................... |g:tplugin#scan|
         g:tplugin#shallow_scan ............. |g:tplugin#shallow_scan|
@@ -229,12 +230,12 @@ g:tplugin_file                 (default: '_tplugin')
 g:tplugin_load_plugin          (default: [])
     A list of pairs [REGEXP, VALUE] that determine how tplugin handles 
     autoload function calls and filetype plugins.
-    
+
     When an autoload function or filetype plugin is loaded, the 
     respective plugin is added to 'runtimepath'. This variable decides 
     whether the corresponding plugin should be loaded too. Possible 
     values are:
-    
+
       . :: Don't load any plugins
       * :: Load all plugins (default if no REGEXP pattern matches the 
            full repo directory name)
@@ -246,7 +247,7 @@ g:tplugin_load_plugin          (default: [])
     This allows you to deal with repositories with a non-standard 
     directory layout. Otherwise it is assumed that the source files are 
     located in the "plugin" subdirectory.
-    
+
     IF PLUGIN is "-", the REPOSITORY will be enabled but no plugin will be 
     loaded.
 
@@ -255,19 +256,19 @@ g:tplugin_load_plugin          (default: [])
     Define the root directory for the following |:TPlugin| commands.
     Read autoload information if available (see |g:tplugin_autoload| and 
     |:TPluginScan|).
-    
+
     With the optional <bang>, don't register commands, functions etc. when 
     scanning the root with |:TPluginScan|.
-    
+
     If DIRECTORY ends with "*", it doesn't refer to a directory hierarchy 
     à la vimfiles but to a single "flat" directory.
-    
+
     If tplugin was installed a directory called .vim or vimfiles, the 
     default root directory is the "bundle" subdirectory of the first 
     element in 'runtimepath'. Otherwise, the default root directory is the 
     directory where tplugin_vim was installed in, i.e. this assumes that 
     tplugin was loaded from ROOT/tplugin_vim/macros/tplugin.vim
-    
+
     Example: >
       " A collection of git repositories
       TPluginRoot ~/src/git_repos
@@ -279,33 +280,33 @@ g:tplugin_load_plugin          (default: [])
 :TPluginScan[!] [WHAT] [ROOT]
     Scan the current root directory for commands and functions. Save 
     autoload information in "ROOT/_tplugin.vim".
-    
+
     Where WHAT is a set of letters determining the information being 
     collected. See |g:tplugin#scan| for details.
-    
+
     With the optional '!', the autocommands are immediatly usable.
-    
+
     Other than the AsNeeded plugin, tplugin doesn't support the creation 
     of autoload information for maps.
-    
+
     If you collect repositories in one than more directory, I'd suggest to 
     create a special script.
-    
+
     The source file may contain special markers that make :TPluginScan 
     include text in the _tplugin.vim file:
                                                         *@TPluginInclude*
     Blocks of non-empty lines are introduced with an @TPluginInclude tag: >
-    
+
       " @TPluginInclude
       augroup Foo
            autocmd!
            autocmd Filetype foo call foo#Init()
       augroup END
-    
+
 <   Special lines are prefixed with @TPluginInclude: >
-      
+
       " @TPluginInclude if !exists('g:foo') | let g:foo = 1 | endif
-    
+
 <   Example: >
       TPluginRoot dir1
       TPluginScan
@@ -318,14 +319,14 @@ g:tplugin_load_plugin          (default: [])
     |:execute| COMMAND after loading a file matching the |regexp| pattern 
     FILE_RX. The COMMAND is executed after the repo's path is added to the 
     'runtimepath'.
-    
+
     This command should be best put into ROOT/tplugin_REPO.vim files, 
     which are loaded when enabling a source repository.
-    
+
     Example: >
       " Load master.vim before loading any plugin in a repo
       TPluginBefore plugin/.\{-}\.vim runtime! macros/master.vim
-    
+
 <   It can also be included in the comments of source files (you have 
     to prepend it with a "@"): >
       "@TPluginBefore my_repo/autoload DoThis
@@ -343,7 +344,7 @@ TPluginUpdate[!]
     Update all repos (VCS types only).
     Requires compiled-in ruby support and http://github.com/tomtom/vcsdo 
     to be installed. You also have to set |g:tplugin#vcsdo#script|.
-    
+
     With the optional !, show which commands would be issued but don't do 
     anything.
 
@@ -351,11 +352,11 @@ TPluginUpdate[!]
 TPluginMap(map, repo, plugin, ?remap="")
     MAP is a map command and the map. REPO and PLUGIN are the same as for 
     the |:TPlugin| command.
-    
+
     Examples: >
       " Map for <plug>Foo:
       call TPluginMap('map <plug>Foo', 'mylib', 'myplugin')
-    
+
       " Load the plugin when pressing <f3> and remap the key to an appropriate 
       " command from the autoloaded plugin:
       call TPluginMap('map <f3>', 'mylib', 'myplugin', ':Foo<cr>')
@@ -370,11 +371,11 @@ TPluginFunction(FUNCTION, REPOSITORY, [PLUGIN])
 TPluginCommand(COMMAND, REPOSITORY, [PLUGIN])
     Load a certain plugin on demand (aka autoload) when COMMAND is called 
     for the first time. Then call the original command.
-    
+
     For most plugins, |:TPluginScan| will generate the appropriate 
     TPluginCommand commands for you. For some plugins, you'll have to 
     define autocommands yourself in the |vimrc| file.
-    
+
     Example: >
       TPluginCommand TSelectBuffer vimtlib tselectbuffer
 <
@@ -385,6 +386,9 @@ TPluginAddRoots(?subdir="bundle")
 
                                                     *TPluginDependencies()*
 TPluginDependencies(repo, deps)
+
+                                                    *TPluginVimEnter()*
+TPluginVimEnter(group)
 
 
 ========================================================================
