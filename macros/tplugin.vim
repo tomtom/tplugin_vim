@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2012-02-23.
-" @Revision:    1950
+" @Last Change: 2012-09-19.
+" @Revision:    1954
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -293,8 +293,12 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
             exec range . cmd . a:bang .' '. a:args
         catch /^Vim\%((\a\+)\)\=:E481/
             exec cmd . a:bang .' '. a:args
+        catch /^Vim\%((\a\+)\)\=:E121/
+            " Ignore exception: was probably caused by a local variable 
+            " that isn't visible in this context.
         catch
             echohl Error
+            echom "Exception" v:exception "from" v:throwpoint
             echom v:errmsg
             echohl NONE
         endtry
