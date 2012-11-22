@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2012-02-24.
-" @Revision:    237
+" @Revision:    243
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -474,7 +474,15 @@ function! s:MakeHelpTags(roots, master_dir) "{{{3
                         let cmd .= 'helptags '
                         let cmd .= TPluginFnameEscape(doc)
                         " TLogVAR cmd
-                        exec cmd
+                        try
+                            exec cmd
+                        catch /^Vim\%((\a\+)\)\=:E154/
+                            if g:tplugin#show_helptags_errors
+                                echohl WarningMsg
+                                echom "TPlugin:" substitute(v:exception, '^Vim\%((\a\+)\)\=:E154:\s*', '', '')
+                                echohl NONE
+                            endif
+                        endtry
                     endif
                     if filereadable(tags)
                         call add(tagfiles, tags)
