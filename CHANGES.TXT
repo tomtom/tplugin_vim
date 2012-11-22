@@ -113,3 +113,13 @@ version: "0.14"
   - Speed up scanning of "shallow roots"
   MD5 checksum: fba3e4a4fad872e074f76dd3988c2cb3
 
+  - Don't try to run :helptags on directories with no text files
+  - g:tplugin#show_helptags_errors: If true, show errors when running :helptags.
+  - Support for extradite
+  - TPluginVimEnter(): :do VimEnter commands only if such autocommands are defined
+  - Make sure to register repos with no plugin file
+  - Autoload: Ignore E121 errors (local variables) and echo v:exception on errors
+  - g:tplugin#show_helptags_errors: If true, show errors when running helptags
+  MD5 checksum: 7c454f3a1f0a380743d5dcb39cfae912
+version: "1.00"
+
