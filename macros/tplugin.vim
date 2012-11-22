@@ -4,14 +4,14 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2012-09-19.
-" @Revision:    1954
+" @Last Change: 2012-09-22.
+" @Revision:    1961
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
     finish
 endif
-let loaded_tplugin = 14
+let loaded_tplugin = 100
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -339,12 +339,15 @@ function! s:AutoloadFunction(fn) "{{{3
             let root = def[0]
             let repo = def[1]
             let [root, rootrepo, plugindir] = s:GetRootPluginDir(root, repo)
+            " echom "DBG AutoloadFunction root, rootrepo, plugindir" string([root, rootrepo, plugindir])
             call TPluginRequire(1, root, repo, s:GetPluginPattern(rootrepo))
             call s:RunHooks(s:before, rootrepo, rootrepo .'/autoload/')
             let autoload_file = 'autoload/'. substitute(prefix, '#', '/', 'g') .'.vim'
             " echom "DBG AutoloadFunction autoload_file" rootrepo autoload_file
-            exec printf('autocmd TPlugin SourceCmd */%s call s:SourceAutoloadFunction(%s, %s)',
+            let au = printf('autocmd TPlugin SourceCmd */%s call s:SourceAutoloadFunction(%s, %s)',
                         \ escape(autoload_file, '\ '), string(rootrepo), string(autoload_file))
+            " echom "DBG AutoloadFunction au" au
+            exec au
         endif
     endif
     if has_key(s:functions, a:fn)
