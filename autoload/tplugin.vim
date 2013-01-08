@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2012-02-24.
-" @Revision:    243
+" @Last Change: 2013-01-07.
+" @Revision:    246
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -448,8 +448,10 @@ function! s:ProcessAddonInfos(out, root, master_dir) "{{{3
     let pos0 = len(root) + 1
     if is_tree
         let infofiles = split(glob(TPluginFileJoin(root, '*', '*-addon-info.txt')), '\n')
+        let infofiles += split(glob(TPluginFileJoin(root, '*', 'addon-info.json')), '\n')
         for info in infofiles
             let repo = fnamemodify(strpart(info, pos0), ':h')
+            " TLogVAR info, repo
             call s:ParseAddonInfo(a:out, repo, info)
         endfor
     endif
