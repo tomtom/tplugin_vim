@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    246
+" @Revision:    250
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -598,18 +598,37 @@ endf
 
 function! s:ParseAddonInfo(out, repo, file) "{{{3
     let src = join(readfile(a:file), ' ')
-    let dict = eval(src)
-    let deps = []
-    for [name, def] in items(get(dict, 'dependencies', {}))
-        let url = get(def, 'url', '')
-        if url == 'git://github.com/tomtom/'. name .'_vim.git'
-            call add(deps, name .'_vim')
-        else
-            call add(deps, name)
+    if s:VerifyIsJSON(src)
+        let dict = eval(src)
+        let deps = []
+        for [name, def] in items(get(dict, 'dependencies', {}))
+            let url = get(def, 'url', '')
+            if url == 'git://github.com/tomtom/'. name .'_vim.git'
+                call add(deps, name .'_vim')
+            else
+                call add(deps, name)
+            endif
+        endfor
+        if !empty(deps)
+            call add(a:out, 'call TPluginDependencies('. string(a:repo) .', '. string(deps) .')')
         endif
-    endfor
-    if !empty(deps)
-        call add(a:out, 'call TPluginDependencies('. string(a:repo) .', '. string(deps) .')')
+    else
+        echohl WarningMsg
+        echom "TPlugin: invalid json:" a:file
+        echohl NONE
+    endif
+endf
+
+
+function! s:VerifyIsJSON(s)
+    if exists('*vam#VerifyIsJSON')
+        return vam#VerifyIsJSON(a:s)
+    else
+        """ Taken from vim-addon-manager
+        " You must allow single-quoted strings in order for writefile([string()]) that 
+        " adds missing addon information to work
+        let scalarless_body = substitute(a:s, '\v\"%(\\.|[^"\\])*\"|\''%(\''{2}|[^''])*\''|true|false|null|[+-]?\d+%(\.\d+%([Ee][+-]?\d+)?)?', '', 'g')
+        return scalarless_body !~# "[^,:{}[\\] \t]"
     endif
 endf
 
