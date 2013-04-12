@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2012-09-22.
-" @Revision:    1961
+" @Revision:    1980
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -191,7 +191,7 @@ let &rtp .= ','. escape(expand('<sfile>:p:h:h'), ',')
 let s:roots = []
 let s:shallow_roots = []
 let s:rtp = split(&rtp, ',')
-let s:reg = {}
+let s:reg = []
 let s:repos = {}
 let s:plugins = {}
 let s:done = {'-': {}}
@@ -601,54 +601,56 @@ function! s:SetRoot(dir, ...) "{{{3
 endf
 
 
-function! s:AddRepo(rootrepos, isflat) "{{{3
-    let rootrepos = filter(copy(a:rootrepos), '!has_key(s:done, v:val)')
-    if !empty(rootrepos)
-        for rootrepo in rootrepos
-            let s:done[rootrepo] = {}
-            let rtp = split(&rtp, ',')
-            let idx = index(rtp, s:rtp[0])
-            if idx == -1
-                let idx = 1
-            else
-                let idx += 1
-            endif
-            " echom "DBG AddRepo alter rtp:" string(rtp) idx
-            if index(rtp, rootrepo) == -1
-                if !a:isflat
-                    " echom "DBG AddRepo rootrepo:" rootrepo idx
-                    let rtp = insert(rtp, rootrepo, idx)
-                    let after_dir = TPluginFileJoin(rootrepo, 'after')
-                    if isdirectory(after_dir)
-                        let rtp = insert(rtp, after_dir, -1)
-                    endif
-                    let &rtp = join(rtp, ',')
-                    " echom "DBG AddRepo neuer &rtp:" &rtp
-                    let repo_tplugin = rootrepo .'/'. g:tplugin_file .'.vim'
-                    if filereadable(repo_tplugin)
-                        exec 'source '. TPluginFnameEscape(repo_tplugin)
-                    endif
-                    let repo = fnamemodify(rootrepo, ':t')
-                    if has_key(s:dependencies, repo)
-                        let deps = s:dependencies[repo]
-                        call remove(s:dependencies, repo)
-                        for dependency in deps
-                            " echom "DBG dependency" repo dependency
-                            call TPluginRequire(1, '', dependency)
-                        endfor
-                    endif
+function! s:AddRepo(rootrepo, isflat) "{{{3
+    if has_key(s:done, a:rootrepo)
+        return 0
+    else
+        " echom "DBG AddRepo" a:rootrepo
+        let s:done[a:rootrepo] = {}
+        let rtp = split(&rtp, ',')
+        let idx = index(rtp, s:rtp[0])
+        if idx == -1
+            let idx = 1
+        else
+            let idx += 1
+        endif
+        " echom "DBG AddRepo alter rtp:" string(rtp) idx
+        if index(rtp, a:rootrepo) == -1
+            if !a:isflat
+                " echom "DBG AddRepo rootrepo:" a:rootrepo idx
+                let rtp = insert(rtp, a:rootrepo, idx)
+                let after_dir = TPluginFileJoin(a:rootrepo, 'after')
+                if isdirectory(after_dir)
+                    let rtp = insert(rtp, after_dir, -1)
                 endif
-                let tplugin_repo = fnamemodify(rootrepo, ':h') .'/'. g:tplugin_file .'_'. fnamemodify(rootrepo, ':t') .'.vim'
-                if filereadable(tplugin_repo)
-                    exec 'source '. TPluginFnameEscape(tplugin_repo)
+                let &rtp = join(rtp, ',')
+                " echom "DBG AddRepo neuer &rtp:" &rtp
+                let repo_tplugin = a:rootrepo .'/'. g:tplugin_file .'.vim'
+                if filereadable(repo_tplugin)
+                    exec 'source '. TPluginFnameEscape(repo_tplugin)
+                endif
+                let repo = fnamemodify(a:rootrepo, ':t')
+                if has_key(s:dependencies, repo)
+                    let deps = s:dependencies[repo]
+                    call remove(s:dependencies, repo)
+                    for dependency in deps
+                        " echom "DBG dependency" repo dependency
+                        call TPluginRequire(1, '', dependency)
+                    endfor
                 endif
             endif
-        endfor
+            let tplugin_repo = fnamemodify(a:rootrepo, ':h') .'/'. g:tplugin_file .'_'. fnamemodify(a:rootrepo, ':t') .'.vim'
+            if filereadable(tplugin_repo)
+                exec 'source '. TPluginFnameEscape(tplugin_repo)
+            endif
+        endif
+        return 1
     endif
 endf
 
 
 function! s:LoadPlugins(mode, rootrepo, pluginfiles) "{{{3
+    " echom "DBG LoadPlugins" string([a:mode, a:rootrepo, a:pluginfiles])
     if empty(a:pluginfiles)
         return
     endif
@@ -658,8 +660,8 @@ function! s:LoadPlugins(mode, rootrepo, pluginfiles) "{{{3
     endif
     for pluginfile in a:pluginfiles
         let pluginfile = TPluginGetCanonicalFilename(pluginfile)
-        " echom "DBG LoadPlugins" pluginfile
         if pluginfile != '-' && !has_key(done_repo, pluginfile)
+            " echom "DBG LoadPlugins" pluginfile
             let done_repo[pluginfile] = 1
             if filereadable(pluginfile)
                 call s:LoadFile(a:rootrepo, pluginfile)
@@ -707,10 +709,12 @@ endf
 
 
 function! s:LoadRequiredPlugins() "{{{3
-    call s:AddRepo(keys(s:reg), 0)
     if !empty(s:reg)
-        for [rootrepo, pluginfiles] in items(s:reg)
-            call s:LoadPlugins(0, rootrepo, pluginfiles)
+        " echom "DBG LoadRequiredPlugins" string(s:reg)
+        for [rootrepo, pluginfiles] in s:reg
+            if s:AddRepo(rootrepo, 0)
+                call s:LoadPlugins(0, rootrepo, pluginfiles)
+            endif
         endfor
     endif
 endf
@@ -730,13 +734,15 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
     " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
     if a:mode || !has('vim_starting')
-        call s:AddRepo([rootrepo], s:IsFlatRoot(root))
-        call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
-    else
-        if !has_key(s:reg, rootrepo)
-            let s:reg[rootrepo] = []
+        if s:AddRepo(rootrepo, s:IsFlatRoot(root))
+            call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
         endif
-        let s:reg[rootrepo] += pluginfiles
+    else
+        " if !has_key(s:reg, rootrepo)
+        "     let s:reg[rootrepo] = []
+        " endif
+        " let s:reg[rootrepo] += pluginfiles
+        call add(s:reg, [rootrepo, pluginfiles])
     endif
 endf
 
