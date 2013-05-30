@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2012-09-22.
-" @Revision:    1980
+" @Revision:    1983
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -325,7 +325,8 @@ function! s:LoadFiletype(filetype) "{{{3
     for rootrepo in rootrepos
         call TPluginRequire(1, rootrepo, '.', s:GetPluginPattern(rootrepo))
     endfor
-    exec 'setfiletype '. a:filetype
+    " TLogVAR a:filetype
+    exec 'setlocal filetype='. a:filetype
 endf
 
 
