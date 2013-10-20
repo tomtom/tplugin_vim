@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2012-09-22.
-" @Revision:    1983
+" @Revision:    1990
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -80,7 +80,7 @@ endif
 "
 " IF PLUGIN is "-", the REPOSITORY will be enabled but no plugin will be 
 " loaded.
-command! -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
+command! -bar -bang -nargs=+ -complete=customlist,s:TPluginComplete TPlugin
             \ call TPluginRequire(!empty("<bang>"), '', <f-args>)
 
 
@@ -727,10 +727,13 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
     " echom "DBG TPluginRequire" root rootrepo plugindir !has_key(s:done, rootrepo)
     if empty(a:000) || a:1 == '*'
         let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
+        " TLogVAR 1, pluginfiles
     elseif a:1 == '.'
         let pluginfiles = []
+        " TLogVAR 2, pluginfiles
     else
         let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
+        " TLogVAR 3, pluginfiles, a:000
     endif
     " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
