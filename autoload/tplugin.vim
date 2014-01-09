@@ -383,6 +383,9 @@ function! s:ScanSource(file, repo, plugin, what, lines) "{{{3
                     call add(out, cmd)
                     let s:vimenter_augroups_done[augroup] = 1
                 endif
+            " elseif line =~ '^if \+!exists(["'']g:loaded_\w\+["''])\( \+|| \+g:loaded_\w\+ \+< \+\d\+\)$'
+            "     let dep = [matchstr(line, 'g:loaded_\zs\w\+')]
+            "     call add(out, 'call TPluginDependencies('. string(a:repo) .', '. string(dep) .')')
             elseif line =~ rx
                 let out_line = s:ScanLine(a:file, a:repo, a:plugin, a:what, line)
                 if !empty(out_line)
