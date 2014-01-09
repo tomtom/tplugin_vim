@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2012-09-22.
-" @Revision:    1990
+" @Revision:    1994
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -916,8 +916,13 @@ endf
 
 function! TPluginDependencies(repo, deps) "{{{3
     if !has_key(s:dependencies, a:repo)
-        let s:dependencies[a:repo] = a:deps
+        let s:dependencies[a:repo] = []
     endif
+    for dep in a:deps
+        if index(s:dependencies[a:repo], dep) == -1
+            call add(s:dependencies[a:repo], dep)
+        endif
+    endfor
 endf
 
 
