@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    250
+" @Revision:    259
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -148,10 +148,11 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
 
             let ftypes= filter(copy(files0), 'strpart(v:val, pos0) =~ ''ftplugin''')
             " TLogVAR ftypes
-            let ftypes= filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]\(ftplugin\|ftdetect\|indent\|syntax\)[\/].\{-}\.vim$''')
+            let ftypes= filter(copy(files0), 'strpart(v:val, pos0) =~ ''^[^\/]\+[\/]\(after[\/]\)\?\(ftplugin\|ftdetect\|indent\|syntax\)[\/].\{-}\.vim$''')
             " TLogVAR ftypes
             for ftfile in ftypes
                 let ft = matchstr(ftfile, '[\/]\(ftplugin\|ftdetect\|indent\|syntax\)[\/]\zs[^\/.]\+')
+                let ft = substitute(ft, '^[^_]\+\zs_.*$', '', '')
                 " TLogVAR ftfile, ft
                 if empty(ft)
                     continue
