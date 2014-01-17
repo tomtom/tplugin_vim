@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2012-09-22.
-" @Revision:    1994
+" @Revision:    1996
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -927,12 +927,7 @@ endf
 
 
 function! TPluginVimEnter(group) "{{{3
-    redir => aus
-    exec 'silent au' a:group 'VimEnter'
-    redir END
-    let au = split(aus, '\n')
-    " TLogVAR a:group, len(au)
-    if len(au) > 1
+    if exists('#'. a:group .'#VimEnter')
         exec 'doautocmd' a:group 'VimEnter'
     endif
 endf
