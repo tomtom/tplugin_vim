@@ -4,8 +4,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
-" @Last Change: 2012-09-22.
-" @Revision:    1996
+" @Last Change: 2014-01-28.
+" @Revision:    2021
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -676,6 +676,7 @@ endf
 
 
 function! s:LoadFile(rootrepo, filename) "{{{3
+    " echom "DBG LoadFile" a:filename
     let pos0 = len(a:rootrepo) + 1
     call s:RemoveAutoloads(a:filename, [])
     call s:RunHooks(s:before, a:rootrepo, a:filename)
@@ -724,21 +725,25 @@ endf
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
-    " echom "DBG TPluginRequire" root rootrepo plugindir !has_key(s:done, rootrepo)
+    " echom "DBG TPluginRequire" a:mode root rootrepo plugindir !has_key(s:done, rootrepo)
     if empty(a:000) || a:1 == '*'
         let pluginfiles = split(glob(TPluginFileJoin(plugindir, '*.vim')), '\n')
+        let always_loadplugins = 0
         " TLogVAR 1, pluginfiles
     elseif a:1 == '.'
         let pluginfiles = []
+        let always_loadplugins = 0
         " TLogVAR 2, pluginfiles
     else
         let pluginfiles = map(copy(a:000), 'TPluginFileJoin(plugindir, v:val .".vim")')
+        " Cannot rely on repo logic, must check plugin filename
+        let always_loadplugins = 1
         " TLogVAR 3, pluginfiles, a:000
     endif
     " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
     if a:mode || !has('vim_starting')
-        if s:AddRepo(rootrepo, s:IsFlatRoot(root))
+        if s:AddRepo(rootrepo, s:IsFlatRoot(root)) || always_loadplugins
             call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
         endif
     else
@@ -752,6 +757,7 @@ endf
 
 
 function! s:RemoveAutoloads(pluginfile, commands) "{{{3
+    " echom "DBG RemoveAutoloads 1" a:pluginfile string(a:commands)
     if has_key(s:maps, a:pluginfile)
         for [keys, map] in items(s:maps[a:pluginfile])
             call s:Unmap(map, keys)
@@ -769,17 +775,21 @@ function! s:RemoveAutoloads(pluginfile, commands) "{{{3
     else
         let cmds = a:commands
     endif
+    " echom "DBG RemoveAutoloads 2" string(cmds)
 
     let remove = !empty(a:commands) && has_key(s:command_nobang, pluginkey)
+    " echom "DBG RemoveAutoloads 3"  remove
     for c in cmds
         if exists(':'. c) == 2
             exec 'delcommand '. c
         endif
         if remove && has_key(s:command_nobang[pluginkey], c)
+            " echom "DBG RemoveAutoloads 4" "command_nobang" pluginkey c
             call remove(s:command_nobang[pluginkey], c)
         endif
     endfor
     if remove && empty(s:command_nobang[pluginkey])
+        " echom "DBG RemoveAutoloads 5" "command_nobang" pluginkey
         call remove(s:command_nobang, pluginkey)
     endif
 endf
