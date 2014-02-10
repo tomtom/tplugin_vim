@@ -5,7 +5,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-01-04.
 " @Last Change: 2014-01-28.
-" @Revision:    2021
+" @Revision:    2042
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -427,13 +427,24 @@ function! TPluginMap(map, repo, plugin, ...) "{{{3
             if empty(maparg)
                 let map = substitute(a:map, '<script>', '', '')
                 let [pre, post] = s:GetMapPrePost(a:map)
-                let args = join([string(keys), string(a:map), string(remap), string(def)], ',')
-                let args = substitute(args, '<', '<lt>', 'g')
-                let map .= ' '. pre . ':call <SID>Remap('. args .')<cr>' . post
+                let args = join([
+                            \ string(keys),
+                            \ string(a:map),
+                            \ string(remap),
+                            \ string(def)
+                            \ ], ',')
+                let map .= ' '. pre . ':call <SID>Remap('. s:EscapeMap(args) .')<cr>' . post
+                " echom "DBG TPluginMap" map
                 exec map
             endif
         endif
     endif
+endf
+
+
+function! s:EscapeMap(map) "{{{3
+    let map = substitute(a:map, '<', '<lt>', 'g')
+    return map
 endf
 
 
@@ -474,13 +485,23 @@ endf
 
 
 function! s:Remap(keys, map, remap, def) "{{{3
+    " TLogVAR a:keys, a:map, a:remap, a:def
     call s:Unmap(a:map, a:keys)
     call call('TPluginRequire', [1] + a:def)
     if !empty(a:remap)
-        exec a:map .' '. a:remap
+        " TLogVAR a:map, a:remap
+        exec a:map a:remap
     endif
-    let keys = substitute(a:keys, '<\ze\w\+\(-\w\+\)*>', '\\<', 'g')
+    " let keys = s:EscapeMap(a:keys)
+    let keys = a:keys
+    let ml = exists('g:mapleader') ? g:mapleader : '\'
+    let keys = substitute(keys, '\c<leader>', escape(ml, '\'), 'g')
+    if exists('g:maplocalleader')
+        let keys = substitute(keys, '\c<localleader>', escape(g:maplocalleader, '\'), 'g')
+    endif
+    let keys = substitute(keys, '<\ze\w\+\(-\w\+\)*>', '\\<', 'g')
     let keys = eval('"'. escape(keys, '"') .'"')
+    " TLogVAR keys
     call feedkeys(keys, 't')
     return keys
 endf
