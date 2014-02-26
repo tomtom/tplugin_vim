@@ -189,11 +189,6 @@ Contents~
         TPluginAddRoots ............................. |TPluginAddRoots()|
         TPluginDependencies ......................... |TPluginDependencies()|
         TPluginVimEnter ............................. |TPluginVimEnter()|
-        g:tplugin#autoload_exclude .................. |g:tplugin#autoload_exclude|
-        g:tplugin#scan .............................. |g:tplugin#scan|
-        g:tplugin#shallow_scan ...................... |g:tplugin#shallow_scan|
-        g:tplugin#show_helptags_errors .............. |g:tplugin#show_helptags_errors|
-        tplugin#ScanRoots ........................... |tplugin#ScanRoots()|
         g:tplugin#vcsdo#script ...................... |g:tplugin#vcsdo#script|
         g:tplugin#vcsdo#log_buffer .................. |g:tplugin#vcsdo#log_buffer|
         g:tplugin#vcsdo#exclude_roots_rx ............ |g:tplugin#vcsdo#exclude_roots_rx|
@@ -397,76 +392,6 @@ TPluginVimEnter(group)
 
 
 ========================================================================
-autoload/tplugin.vim~
-
-                                                    *g:tplugin#autoload_exclude*
-g:tplugin#autoload_exclude     (default: ['tplugin'])
-    A list of repositories for which autoload is disabled when running 
-    |:TPluginScan|.
-
-                                                    *g:tplugin#scan*
-g:tplugin#scan                 (default: 'cfptham_')
-    The default value for |:TPluginScan|. A set of identifiers 
-    determining the information being collected:
-       c ... commands
-       f ... functions
-       p ... <plug> maps
-       t ... filetypes
-       h ... helptags if not available
-       a ... autoload
-       m ... parse vim-addon-manager metadata
-       _ ... include _tplugin.vim files
-       all ... all of the above
-
-                                                    *g:tplugin#shallow_scan*
-g:tplugin#shallow_scan         (default: 'hm')
-
-                                                    *g:tplugin#show_helptags_errors*
-g:tplugin#show_helptags_errors (default: 1)
-    If true, show errors when running :helptags.
-
-                                                    *tplugin#ScanRoots()*
-tplugin#ScanRoots(immediate, roots, shallow_roots, args)
-    Write autoload information for each root directory to 
-    "ROOT/_tplugin.vim".
-    Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
-    definitions. The file's basenames are repo names.
-
-                                                    *g:tplugin#autoload_exclude*
-g:tplugin#autoload_exclude     (default: ['tplugin'])
-    A list of repositories for which autoload is disabled when running 
-    |:TPluginScan|.
-
-                                                    *g:tplugin#scan*
-g:tplugin#scan                 (default: 'cfptham_')
-    The default value for |:TPluginScan|. A set of identifiers 
-    determining the information being collected:
-       c ... commands
-       f ... functions
-       p ... <plug> maps
-       t ... filetypes
-       h ... helptags if not available
-       a ... autoload
-       m ... parse vim-addon-manager metadata
-       _ ... include _tplugin.vim files
-       all ... all of the above
-
-                                                    *g:tplugin#shallow_scan*
-g:tplugin#shallow_scan         (default: 'hm')
-
-                                                    *g:tplugin#show_helptags_errors*
-g:tplugin#show_helptags_errors (default: 1)
-    If true, show errors when running :helptags.
-
-                                                    *tplugin#ScanRoots()*
-tplugin#ScanRoots(immediate, roots, shallow_roots, args)
-    Write autoload information for each root directory to 
-    "ROOT/_tplugin.vim".
-    Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
-    definitions. The file's basenames are repo names.
-
-
-========================================================================
 autoload/tplugin/vcsdo.vim~
 
                                                     *g:tplugin#vcsdo#script*
@@ -485,39 +410,6 @@ g:tplugin#vcsdo#exclude_roots_rx (default: '')
 
 ========================================================================
 autoload/tplugin.vim~
-
-                                                    *g:tplugin#autoload_exclude*
-g:tplugin#autoload_exclude     (default: ['tplugin'])
-    A list of repositories for which autoload is disabled when running 
-    |:TPluginScan|.
-
-                                                    *g:tplugin#scan*
-g:tplugin#scan                 (default: 'cfptham_')
-    The default value for |:TPluginScan|. A set of identifiers 
-    determining the information being collected:
-       c ... commands
-       f ... functions
-       p ... <plug> maps
-       t ... filetypes
-       h ... helptags if not available
-       a ... autoload
-       m ... parse vim-addon-manager metadata
-       _ ... include _tplugin.vim files
-       all ... all of the above
-
-                                                    *g:tplugin#shallow_scan*
-g:tplugin#shallow_scan         (default: 'hm')
-
-                                                    *g:tplugin#show_helptags_errors*
-g:tplugin#show_helptags_errors (default: 1)
-    If true, show errors when running :helptags.
-
-                                                    *tplugin#ScanRoots()*
-tplugin#ScanRoots(immediate, roots, shallow_roots, args)
-    Write autoload information for each root directory to 
-    "ROOT/_tplugin.vim".
-    Search in autoload/tplugin/autoload/*.vim for prefabricated autoload 
-    definitions. The file's basenames are repo names.
 
                                                     *g:tplugin#autoload_exclude*
 g:tplugin#autoload_exclude     (default: ['tplugin'])
