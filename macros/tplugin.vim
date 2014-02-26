@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2043
+" @Revision:    2045
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -731,11 +731,16 @@ endf
 function! s:LoadRequiredPlugins() "{{{3
     if !empty(s:reg)
         " echom "DBG LoadRequiredPlugins" string(s:reg)
-        for [rootrepo, pluginfiles] in s:reg
-            if s:AddRepo(rootrepo, 0)
-                call s:LoadPlugins(0, rootrepo, pluginfiles)
-            endif
-        endfor
+        let g:tplugin_starting = 1
+        try
+            for [rootrepo, pluginfiles] in s:reg
+                if s:AddRepo(rootrepo, 0)
+                    call s:LoadPlugins(0, rootrepo, pluginfiles)
+                endif
+            endfor
+        finally
+            unlet! g:tplugin_starting
+        endtry
     endif
 endf
 
