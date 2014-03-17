@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    259
+" @Revision:    265
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -27,6 +27,17 @@ if !exists('g:tplugin#scan')
     "    _ ... include _tplugin.vim files
     "    all ... all of the above
     let g:tplugin#scan = 'cfptham_'   "{{{2
+endif
+
+
+if !exists('g:tplugin#cd_tplugin')
+    " If true, wrap the contents of _tplugin.vim in |:cd| commands.
+    " 
+    " Pro: repo-specific _tplugin.vim files will be evaluated in the 
+    " right directory.
+    "
+    " Cons: The resulting _tplugin.vim register won't be portable.
+    let g:tplugin#cd_tplugin = 0   "{{{2
 endif
 
 
@@ -121,7 +132,12 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
         if whati != -1
             for _tplugin in _tplugins
                 " echom "DBG _tplugin" _tplugin
-                call extend(out, readfile(_tplugin))
+                let lines = readfile(_tplugin)
+                if g:tplugin#cd_tplugin
+                    let lines = insert(lines, 'cd! '. fnameescape(fnamemodify(_tplugin, ':p:h')))
+                    let lines = add(lines, 'cd! -')
+                endif
+                call extend(out, lines)
             endfor
             call remove(what, whati)
         endif
