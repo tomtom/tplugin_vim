@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    265
+" @Revision:    267
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -96,7 +96,7 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
         else
             let what = split(awhat, '\zs')
         endif
-    
+
         let whati = index(what, 'h')
         if whati != -1
             call add(helptags_roots, root)
@@ -147,7 +147,7 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
             call s:ProcessAddonInfos(out, root, 'guess')
             call remove(what, whati)
         endif
-            
+
         let s:repos_registry = {}
 
         let whati = index(what, 't')
