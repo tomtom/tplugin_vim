@@ -274,10 +274,6 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
     else
         let cmd = cmd0
     endif
-    if a:type == 1 " Command
-        let pluginfile = s:GetPluginFile(root, file[0], file[1])
-        call s:RemoveAutoloads(pluginfile, [cmd])
-    endif
     " echom "DBG s:Autoload" string(file)
     if len(file) >= 1 && len(file) <= 2
         call call('TPluginRequire', [1, root] + file)
@@ -696,7 +692,7 @@ endf
 function! s:LoadFile(rootrepo, filename) "{{{3
     " echom "DBG LoadFile" a:filename
     let pos0 = len(a:rootrepo) + 1
-    call s:RemoveAutoloads(a:filename, [])
+    call s:RemoveAutoloads(a:filename)
     call s:RunHooks(s:before, a:rootrepo, a:filename)
     " exec 'source '. TPluginFnameEscape(a:filename)
     " exec 'runtime! after/'. TPluginFnameEscape(strpart(a:filename, pos0))
@@ -779,8 +775,8 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
 endf
 
 
-function! s:RemoveAutoloads(pluginfile, commands) "{{{3
-    " echom "DBG RemoveAutoloads 1" a:pluginfile string(a:commands)
+function! s:RemoveAutoloads(pluginfile) "{{{3
+    " echom "DBG RemoveAutoloads 1" a:pluginfile
     if has_key(s:maps, a:pluginfile)
         for [keys, map] in items(s:maps[a:pluginfile])
             call s:Unmap(map, keys)
@@ -789,30 +785,20 @@ function! s:RemoveAutoloads(pluginfile, commands) "{{{3
     endif
 
     let pluginkey = s:CommandKey(a:pluginfile)
-    if empty(a:commands)
-        if has_key(s:command_nobang, pluginkey)
-            let cmds = keys(s:command_nobang[pluginkey])
-        else
-            return
-        endif
+    if has_key(s:command_nobang, pluginkey)
+        let cmds = keys(s:command_nobang[pluginkey])
     else
-        let cmds = a:commands
+        return
     endif
     " echom "DBG RemoveAutoloads 2" string(cmds)
 
-    let remove = !empty(a:commands) && has_key(s:command_nobang, pluginkey)
-    " echom "DBG RemoveAutoloads 3"  remove
     for c in cmds
         if exists(':'. c) == 2
             exec 'delcommand '. c
         endif
-        if remove && has_key(s:command_nobang[pluginkey], c)
-            " echom "DBG RemoveAutoloads 4" "command_nobang" pluginkey c
-            call remove(s:command_nobang[pluginkey], c)
-        endif
+        call remove(s:command_nobang[pluginkey], c)
     endfor
-    if remove && empty(s:command_nobang[pluginkey])
-        " echom "DBG RemoveAutoloads 5" "command_nobang" pluginkey
+    if empty(s:command_nobang[pluginkey])
         call remove(s:command_nobang, pluginkey)
     endif
 endf
