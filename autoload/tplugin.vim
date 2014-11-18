@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    267
+" @Revision:    268
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -222,8 +222,6 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
 
                 let file0 = strpart(file, pos0)
 
-                let lines = readfile(file)
-
                 if is_tree
 
                     if file0 =~ '^[^\/]\+[\/]plugin[\/][^\/]\{-}\.vim$'
@@ -250,6 +248,7 @@ function! tplugin#ScanRoots(immediate, roots, shallow_roots, args) "{{{3
                 endif
 
                 if !empty(what)
+                    let lines = readfile(file)
                     let autoload = s:ScanSource(file, repo, plugin, what, lines)
                     " TLogVAR file, repo, plugin
                     " TLogVAR keys(prefabs)
