@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2045
+" @Revision:    2049
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -199,7 +199,7 @@ let s:ftypes = {}
 let s:functions = {}
 let s:autoloads = {}
 let s:maps = {}
-let s:command_nobang = {}
+let s:plugin_commands = {}
 
 
 " :nodoc:
@@ -239,20 +239,20 @@ endf
 function! s:DefineCommand(def1) "{{{3
     let [cmd0; file] = a:def1
     let string = TPluginStrip(cmd0)
+    let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], file[1])
+    let pluginkey = s:CommandKey(pluginfile)
+    if !has_key(s:plugin_commands, pluginkey)
+        let s:plugin_commands[pluginkey] = {}
+    endif
+    let cmd = s:ExtractCommand(cmd0)
+    if !has_key(s:plugin_commands[pluginkey], cmd)
+        let s:plugin_commands[pluginkey][cmd] = 1
+    endif
     if match(string, '\s') == -1
         return 'command! -bang -range -nargs=* '. string
     else
         " let cmd = matchstr(a:string, '\s\zs\u\w*$')
         if string =~ '^com\%[mand]\zs\s'
-            let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], file[1])
-            let pluginkey = s:CommandKey(pluginfile)
-            if !has_key(s:command_nobang, pluginkey)
-                let s:command_nobang[pluginkey] = {}
-            endif
-            let cmd = s:ExtractCommand(cmd0)
-            if !has_key(s:command_nobang[pluginkey], cmd)
-                let s:command_nobang[pluginkey][cmd] = 1
-            endif
             let string = substitute(string, '^com\%[mand]\zs\s', '! ', '')
         endif
         return string
@@ -785,8 +785,8 @@ function! s:RemoveAutoloads(pluginfile) "{{{3
     endif
 
     let pluginkey = s:CommandKey(a:pluginfile)
-    if has_key(s:command_nobang, pluginkey)
-        let cmds = keys(s:command_nobang[pluginkey])
+    if has_key(s:plugin_commands, pluginkey)
+        let cmds = keys(s:plugin_commands[pluginkey])
     else
         return
     endif
@@ -796,10 +796,10 @@ function! s:RemoveAutoloads(pluginfile) "{{{3
         if exists(':'. c) == 2
             exec 'delcommand '. c
         endif
-        call remove(s:command_nobang[pluginkey], c)
+        call remove(s:plugin_commands[pluginkey], c)
     endfor
-    if empty(s:command_nobang[pluginkey])
-        call remove(s:command_nobang, pluginkey)
+    if empty(s:plugin_commands[pluginkey])
+        call remove(s:plugin_commands, pluginkey)
     endif
 endf
 
