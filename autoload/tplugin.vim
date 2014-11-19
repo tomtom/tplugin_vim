@@ -4,7 +4,7 @@
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
 " @Last Change: 2013-01-07.
-" @Revision:    268
+" @Revision:    274
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -298,7 +298,7 @@ endf
 let s:scanner = {
             \ 'c': {
             \   'rx':  '^\s*:\?com\%[mand]!\?\s\+\(-\S\+\s\+\)*\u\k*',
-            \   'fmt': {'sargs3': 'call TPluginCommand(%s, %s, %s)'}
+            \   'fmt': {'sargs3': 'call TPluginCommand(%s, %s, %s)', 'process':  's:ProcessCommandArgs'}
             \ },
             \ 'f': {
             \   'rx':  '^\s*:\?fu\%[nction]!\?\s\+\zs\(s:\|<SID>\)\@![^[:space:].]\{-}\ze\s*(',
@@ -442,7 +442,12 @@ function! s:ScanLine(file, repo, plugin, what, line) "{{{3
                     if has_key(fmt, 'arr1')
                         return printf(fmt.arr1, string([m, a:repo, plugin]))
                     elseif has_key(fmt, 'sargs3')
-                        return printf(fmt.sargs3, string(m), string(a:repo), string(plugin))
+                        if has_key(fmt, 'process')
+                            let [m, r, p] = call(fmt.process, [m, a:repo, plugin])
+                            return printf(fmt.sargs3, string(m), string(r), string(p))
+                        else
+                            return printf(fmt.sargs3, string(m), string(a:repo), string(plugin))
+                        endif
                     else
                         return printf(fmt.cargs3, escape(m, ' \	'), escape(a:repo, ' \	'), escape(plugin, ' \	'))
                     endif
@@ -450,6 +455,16 @@ function! s:ScanLine(file, repo, plugin, what, line) "{{{3
             endif
         endif
     endfor
+endf
+
+
+function! s:ProcessCommandArgs(m, r, p) "{{{3
+    if a:m =~# '\s-complete=custom\(list\)\?,\(s:\|<SID>\)'
+        let m = substitute(a:m, '\s-complete=custom\(list\)\?,\(s:\|<SID>\)\k\+', '', '')
+    else
+        let m = a:m
+    endif
+    return [a:m, a:r, a:p]
 endf
 
 
