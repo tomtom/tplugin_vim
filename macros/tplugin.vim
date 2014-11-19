@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2049
+" @Revision:    2064
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -231,7 +231,7 @@ function! TPluginStrip(string) "{{{3
 endf
 
 
-function! s:CommandKey(pluginfile) "{{{3
+function! s:PluginKey(pluginfile) "{{{3
     return substitute(a:pluginfile, '\\', '/', 'g')
 endf
 
@@ -239,9 +239,9 @@ endf
 function! s:DefineCommand(def1) "{{{3
     let [cmd0; file] = a:def1
     let string = TPluginStrip(cmd0)
-    let plugin = len(file) > 1 ? file[1] : file[0]
+    let plugin = len(file) > 1 ? file[1] : '*'
     let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], plugin)
-    let pluginkey = s:CommandKey(pluginfile)
+    let pluginkey = s:PluginKey(pluginfile)
     if !has_key(s:plugin_commands, pluginkey)
         let s:plugin_commands[pluginkey] = {}
     endif
@@ -695,6 +695,7 @@ endf
 function! s:LoadFile(rootrepo, filename) "{{{3
     " echom "DBG LoadFile" a:filename
     let pos0 = len(a:rootrepo) + 1
+    call s:RemoveGeneralAutoloads(a:filename)
     call s:RemoveAutoloads(a:filename)
     call s:RunHooks(s:before, a:rootrepo, a:filename)
     " exec 'source '. TPluginFnameEscape(a:filename)
@@ -778,6 +779,12 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
 endf
 
 
+function! s:RemoveGeneralAutoloads(pluginfile) "{{{3
+    let pluginfile = substitute(a:pluginfile, '[\\/]\zs[^\\/]\+\ze\.vim$', '*', '')
+    call s:RemoveAutoloads(pluginfile)
+endf
+
+
 function! s:RemoveAutoloads(pluginfile) "{{{3
     " echom "DBG RemoveAutoloads 1" a:pluginfile
     if has_key(s:maps, a:pluginfile)
@@ -787,7 +794,8 @@ function! s:RemoveAutoloads(pluginfile) "{{{3
         call remove(s:maps, a:pluginfile)
     endif
 
-    let pluginkey = s:CommandKey(a:pluginfile)
+    let pluginkey = s:PluginKey(a:pluginfile)
+    " echom "DBG" pluginkey string(keys(s:plugin_commands))
     if has_key(s:plugin_commands, pluginkey)
         let cmds = keys(s:plugin_commands[pluginkey])
     else
