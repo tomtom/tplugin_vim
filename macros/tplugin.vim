@@ -607,7 +607,9 @@ function! s:SetRoot(dir, ...) "{{{3
                 endif
             catch
                 echohl Error
+                echom "Exception while setting tplugin root!"
                 echom v:exception
+                echom "  in" v:throwpoint
                 echom "Maybe the problem can be solved by running :TPluginScan"
                 echohl NONE
             endtry
