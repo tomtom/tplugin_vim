@@ -239,7 +239,8 @@ endf
 function! s:DefineCommand(def1) "{{{3
     let [cmd0; file] = a:def1
     let string = TPluginStrip(cmd0)
-    let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], file[1])
+    let plugin = len(file) > 1 ? file[1] : file[0]
+    let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], plugin)
     let pluginkey = s:CommandKey(pluginfile)
     if !has_key(s:plugin_commands, pluginkey)
         let s:plugin_commands[pluginkey] = {}
