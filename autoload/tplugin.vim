@@ -3,8 +3,8 @@
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-09-17.
-" @Last Change: 2013-01-07.
-" @Revision:    274
+" @Last Change: 2014-11-20.
+" @Revision:    281
 
 
 if !exists('g:tplugin#autoload_exclude')
@@ -298,7 +298,7 @@ endf
 let s:scanner = {
             \ 'c': {
             \   'rx':  '^\s*:\?com\%[mand]!\?\s\+\(-\S\+\s\+\)*\u\k*',
-            \   'fmt': {'sargs3': 'call TPluginCommand(%s, %s, %s)', 'process':  's:ProcessCommandArgs'}
+            \   'fmt': {'sargs3': 'call TPluginCommand(%s, %s, %s)', 'process':  's:ProcessCommandArgs3'}
             \ },
             \ 'f': {
             \   'rx':  '^\s*:\?fu\%[nction]!\?\s\+\zs\(s:\|<SID>\)\@![^[:space:].]\{-}\ze\s*(',
@@ -443,8 +443,8 @@ function! s:ScanLine(file, repo, plugin, what, line) "{{{3
                         return printf(fmt.arr1, string([m, a:repo, plugin]))
                     elseif has_key(fmt, 'sargs3')
                         if has_key(fmt, 'process')
-                            let [m, r, p] = call(fmt.process, [m, a:repo, plugin])
-                            return printf(fmt.sargs3, string(m), string(r), string(p))
+                            let [acmd, arepo, aplugin] = call(fmt.process, [a:line, m, a:repo, plugin])
+                            return printf(fmt.sargs3, string(acmd), string(arepo), string(aplugin))
                         else
                             return printf(fmt.sargs3, string(m), string(a:repo), string(plugin))
                         endif
@@ -458,13 +458,20 @@ function! s:ScanLine(file, repo, plugin, what, line) "{{{3
 endf
 
 
-function! s:ProcessCommandArgs(m, r, p) "{{{3
+function! s:ProcessCommandArgs3(line, m, r, p) "{{{3
     if a:m =~# '\s-complete=custom\(list\)\?,\(s:\|<SID>\)'
         let m = substitute(a:m, '\s-complete=custom\(list\)\?,\(s:\|<SID>\)\k\+', '', '')
     else
         let m = a:m
     endif
-    return [a:m, a:r, a:p]
+    " Properly handle commands that use the -range flag but then use 
+    " <count> in the replacement text (not <line1>, <line2>).
+    if m =~# '\s-range\>' && a:line =~# '<count1\?>' && a:line !~# '<line[12]>'
+        let m1 = {'cmd': m, 'rangetype': 'rangecount'}
+    else
+        let m1 = m
+    endif
+    return [m1, a:r, a:p]
 endf
 
 

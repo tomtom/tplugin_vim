@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2064
+" @Revision:    2078
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -237,7 +237,8 @@ endf
 
 
 function! s:DefineCommand(def1) "{{{3
-    let [cmd0; file] = a:def1
+    let [cmd00; file] = a:def1
+    let cmd0 = s:GetCmd(cmd00)
     let string = TPluginStrip(cmd0)
     let plugin = len(file) > 1 ? file[1] : '*'
     let pluginfile = s:GetPluginFile(s:GetRoot(), file[0], plugin)
@@ -269,11 +270,11 @@ endf
 " args: A string if type == 1, a list if type == 2
 function! s:Autoload(type, def, bang, range, args) "{{{3
     let [root, cmd0; file] = a:def
-    let cmd0 = TPluginStrip(cmd0)
-    if match(cmd0, '\s') != -1
-        let cmd = s:ExtractCommand(cmd0)
+    let cmd = TPluginStrip(s:GetCmd(cmd0))
+    if match(cmd, '\s') != -1
+        let cmd = s:ExtractCommand(cmd)
     else
-        let cmd = cmd0
+        let cmd = cmd
     endif
     " echom "DBG s:Autoload" string(file)
     if len(file) >= 1 && len(file) <= 2
@@ -903,7 +904,8 @@ endf
 " Example: >
 "   TPluginCommand TSelectBuffer vimtlib tselectbuffer
 function! TPluginCommand(...) "{{{3
-    let cmd = a:000[0]
+    let cmd0 = a:000[0]
+    let cmd = s:GetCmd(cmd0)
     if g:tplugin_autoload && exists(':'. matchstr(cmd, '\s\zs\u\w*$')) != 2
         let args = [s:GetRoot()] + a:000
         if a:0 <= 1
@@ -914,15 +916,39 @@ function! TPluginCommand(...) "{{{3
         else
             echoerr "TPluginCommand: too many arguments: ". string(a:000)
         endif
-        if cmd =~ '\s-range[[:space:]=]'
+        let opts = s:GetCmdOpts(cmd0)
+        let rangetype = get(opts, 'rangetype', '')
+        if rangetype == 'range' || (empty(rangetype) && cmd =~ '\s-range[[:space:]=]')
             let range = '["<line1>", "<line2>"]'
-        elseif cmd =~ '\s-count[[:space:]=]'
+        elseif rangetype == 'rangecount'
+            let range = '[".", "+<count>"]'
+        elseif rangetype == 'count' || (empty(rangetype) && cmd =~ '\s-count[[:space:]=]')
             let range = '["<count>"]'
         else
             let range = '[]'
         end
         exec s:DefineCommand(a:000) .' call s:Autoload(1, '. string(args) .', "<bang>", '. range .', <q-args>)'
     endif
+endf
+
+
+function! s:GetCmd(cmddef) "{{{3
+    if type(a:cmddef) == 4
+        let cmd = a:cmddef.cmd
+    else
+        let cmd = a:cmddef
+    endif
+    return cmd
+endf
+
+
+function! s:GetCmdOpts(cmddef) "{{{3
+    if type(a:cmddef) == 4
+        let opts = a:cmddef
+    else
+        let opts = {}
+    endif
+    return opts
 endf
 
 
