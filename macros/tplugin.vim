@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2078
+" @Revision:    2080
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -284,20 +284,31 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
     endif
     if a:type == 1 " Command
         let range = join(filter(copy(a:range), '!empty(v:val)'), ',')
-        try
-            exec range . cmd . a:bang .' '. a:args
-        catch /^Vim\%((\a\+)\)\=:E481/
-            exec cmd . a:bang .' '. a:args
-        catch /^Vim\%((\a\+)\)\=:E121/
-            " Ignore exception: was probably caused by a local variable 
-            " that isn't visible in this context.
-        catch
+        if exists(':'. cmd) == 2
+            try
+                exec range . cmd . a:bang .' '. a:args
+            catch /^Vim\%((\a\+)\)\=:E481/
+                exec cmd . a:bang .' '. a:args
+            catch /^Vim\%((\a\+)\)\=:E121/
+                " Ignore exception: was probably caused by a local variable 
+                " that isn't visible in this context.
+            catch
+                echohl Error
+                echom "Exception" v:exception "from" v:throwpoint
+                echom v:errmsg
+                echohl NONE
+            endtry
+        else
             echohl Error
-            echom "Exception" v:exception "from" v:throwpoint
-            echom v:errmsg
+            echom "TPlugin: Unknown command:" cmd
             echohl NONE
-        endtry
+        endif
     elseif a:type == 2 " Function
+        if !exists('*'. cmd)
+            echohl Error
+            echom "TPlugin: Unknown function:" cmd
+            echohl NONE
+        endif
     elseif a:type == 3 " Map
     else
         echoerr 'Unsupported type: '. a:type
