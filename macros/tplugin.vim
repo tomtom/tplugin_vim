@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2080
+" @Revision:    2084
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -269,6 +269,7 @@ endf
 
 " args: A string if type == 1, a list if type == 2
 function! s:Autoload(type, def, bang, range, args) "{{{3
+    " echom "DBG s:Autoload type, def:" type string(a:def)
     let [root, cmd0; file] = a:def
     let cmd = TPluginStrip(s:GetCmd(cmd0))
     if match(cmd, '\s') != -1
@@ -276,7 +277,7 @@ function! s:Autoload(type, def, bang, range, args) "{{{3
     else
         let cmd = cmd
     endif
-    " echom "DBG s:Autoload" string(file)
+    " echom "DBG s:Autoload file:" string(file)
     if len(file) >= 1 && len(file) <= 2
         call call('TPluginRequire', [1, root] + file)
     else
