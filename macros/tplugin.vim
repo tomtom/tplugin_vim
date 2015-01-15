@@ -2,7 +2,7 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @GIT:         http://github.com/tomtom/tplugin_vim/
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    2084
+" @Revision:    2090
 " GetLatestVimScripts: 2917 1 :AutoInstall: tplugin.vim
 
 if &cp || exists("loaded_tplugin")
@@ -188,7 +188,6 @@ let &rtp .= ','. escape(expand('<sfile>:p:h:h'), ',')
 let s:roots = []
 let s:shallow_roots = []
 let s:rtp = split(&rtp, ',')
-let s:reg = []
 let s:repos = {}
 let s:plugins = {}
 let s:done = {'-': {}}
@@ -741,23 +740,6 @@ function! s:RunHooks(hooks, rootrepo, pluginfile) "{{{3
 endf
 
 
-function! s:LoadRequiredPlugins() "{{{3
-    if !empty(s:reg)
-        " echom "DBG LoadRequiredPlugins" string(s:reg)
-        let g:tplugin_starting = 1
-        try
-            for [rootrepo, pluginfiles] in s:reg
-                if s:AddRepo(rootrepo, 0)
-                    call s:LoadPlugins(0, rootrepo, pluginfiles)
-                endif
-            endfor
-        finally
-            unlet! g:tplugin_starting
-        endtry
-    endif
-endf
-
-
 " :nodoc:
 function! TPluginRequire(mode, root, repo, ...) "{{{3
     let [root, rootrepo, plugindir] = s:GetRootPluginDir(a:root, a:repo)
@@ -778,16 +760,8 @@ function! TPluginRequire(mode, root, repo, ...) "{{{3
     endif
     " echom "DBG TPluginRequire pluginfiles:" string(pluginfiles) (a:mode || !has('vim_starting'))
     call filter(pluginfiles, 'v:val !~ ''\V\[\/]'. g:tplugin_file .'\(_\S\{-}\)\?\.vim\$''')
-    if a:mode || !has('vim_starting')
-        if s:AddRepo(rootrepo, s:IsFlatRoot(root)) || always_loadplugins
-            call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
-        endif
-    else
-        " if !has_key(s:reg, rootrepo)
-        "     let s:reg[rootrepo] = []
-        " endif
-        " let s:reg[rootrepo] += pluginfiles
-        call add(s:reg, [rootrepo, pluginfiles])
+    if s:AddRepo(rootrepo, s:IsFlatRoot(root)) ? (a:mode || !has('vim_starting')) : always_loadplugins
+        call s:LoadPlugins(a:mode, rootrepo, pluginfiles)
     endif
 endf
 
@@ -1009,8 +983,6 @@ endif
 
 augroup TPlugin
     autocmd!
-    autocmd VimEnter * call s:LoadRequiredPlugins()
-
     if g:tplugin_autoload
         autocmd FuncUndefined * call s:AutoloadFunction(expand("<afile>"))
         autocmd FileType * if has_key(s:ftypes, &ft) | call s:LoadFiletype(&ft) | endif
