@@ -1,3 +1,5 @@
+NOTE: This plugin is obsoleted by https://github.com/tomtom/enabler_vim
+
 tplugin is a plugin management tool similar to pathogen. Other than 
 pathogen tplugin expands the 'runtimepath' as needed (e.g. when 
 calling a command or function that is defined in a bundle) in order to 
